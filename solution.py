@@ -14,6 +14,7 @@ root = tk.Tk()
 root.title("Maze")
 canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
 canvas.pack()
+render_delay = 100
 
 draw_maze(maze, canvas=canvas, cell_size=cell_size)
 minotaurus = random.choice(list(maze.keys()))
@@ -22,7 +23,7 @@ draw_minotaurus(minotaurus, canvas, cell_size // 2, cell_size)
 def render():
     draw_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
     canvas.update()
-    canvas.after(100)
+    canvas.after(render_delay)
 
 def put_blue_gem(cell):
     if cell not in blue_gem_coords:
@@ -39,6 +40,13 @@ def turn_gem_red(cell):
         blue_gem_coords.remove(cell)
         red_gem_coords.append(cell)
 
+def found_minotaurus():
+    global found
+    found = True
+
+def was_found():
+    return found
+
 def get_neighbors(pos):
     """
     For students to implement.
@@ -49,6 +57,14 @@ def DFS(pos):
     """
     For students to implement.
     """
+    print(found)
+    if was_found():
+        return
+
+    if pos == minotaurus:
+        found_minotaurus()
+        return
+
     put_blue_gem(pos)
     
     render()

@@ -1,58 +1,50 @@
 import random
 from utils import get_maze_size
 
-def creates_hole(maze, c0, c1):
+def count_neighbors_in_2x2_subgraph(maze, bi, bj):
+    """
+    Count number of neighbors within 2x2 subgraph whose North-West cell
+    is (bi, bj).
+    """
+    count = 0
+    count += (bi, bj + 1) in maze[(bi, bj)] # East of North-West
+    count += (bi + 1, bj) in maze[(bi, bj)] # South of North-West
+    count += (bi, bj + 1) in maze[(bi + 1, bj + 1)] # North of South-East
+    count += (bi + 1, bj) in maze[(bi + 1, bj + 1)] # West of South-East cell
+    return count
+
+def creates_2x2_hole(maze, c0, c1):
     """
     Check if the removal of the wall between neighbor1 and neighbor2 creates a
     empty space of size at least 2x2 or larger.
 
     Assumes that wall between c0 and c1 exists.
     """
-    m, n = get_maze_size(maze)
+    c0, c1 = sorted([c0, c1])
 
     if (c0[0] == c1[0]):
         # Rows agree, so we would remove a vertical wall.
-        assert c0[1] != c1[1]
-
-        # Make sure c0 is always left of c1
-        if c1[1] < c0[1]: c0, c1 = c1, c0
 
         # Check if removal of this wall would create a hole above and below.
         for i in range(max(0, c0[0] - 1), c0[0] + 1):
             # Count number of neighbors within 2x2 subgraph whose North-West cell
             # is (i, c0[1]).
-            count = 0
-            count += (i, c0[1] + 1) in maze[(i, c0[1])] # East neighbor of North-West cell
-            count += (i + 1, c0[1]) in maze[(i, c0[1])] # South neighbor of North-West cell
-            count += (i, c0[1] + 1) in maze[(i + 1, c0[1] + 1)] # North neighbor of South-East cell
-            count += (i + 1, c0[1]) in maze[(i + 1, c0[1] + 1)] # West neighbor of South-East cell
+            count = count_neighbors_in_2x2_subgraph(maze, i, c0[1])
 
-            assert count <= 3 # If the maze has a 2x2 whole already, we messed up.
-            print(f"{count=}")
             if count + 1 == 4:
-                print("Hole above and below")
+                # In this case, the removal of the wall would create a hole.
                 return True
     else:
         # Columns agree, so we would remove a horizontal wall.
-        assert c0[0] != c1[0]
-
-        # Make sure c0 is always above c1
-        if c1[0] < c0[0]: c0, c1 = c1, c0
 
         # Check if removal of this wall would create a hole to the left and right.
         for j in range(max(0, c0[1] - 1), c1[1] + 1):
             # Count number of neighbors within 2x2 subgraph whose North-West cell
             # is (c0[0], j).
-            count = 0
-            count += (c0[0], j + 1) in maze[(c0[0], j)] # East neighbor of North-West cell
-            count += (c0[0] + 1, j) in maze[(c0[0], j)] # South neighbor of North-West cell
-            count += (c0[0], j + 1) in maze[(c0[0] + 1, j + 1)] # North neighbor of South-East cell
-            count += (c0[0] + 1, j) in maze[(c0[0] + 1, j + 1)] # West neighbor of South-East cell
+            count = count_neighbors_in_2x2_subgraph(maze, c0[0], j)
 
-            assert count <= 3 # If the maze has a 2x2 whole already, we messed up.
-            print(f"{count=}")
             if count + 1 == 4:
-                print("Hole to the left and right")
+                # In this case, the removal of the wall would create a hole.
                 return True
     return False
 
@@ -94,11 +86,10 @@ def create_maze(rows, cols, start, p_remove=0.9):
             all_neighbors = [(i + di, j + dj) for di, dj in offsets]
             walls = [n for n in all_neighbors if n not in maze[(i, j)]]
             for wall in walls:
-                if creates_hole(maze, (i, j), wall):
+                if creates_2x2_hole(maze, (i, j), wall):
                     continue
                 if random.random() <= p_remove:
-                    # Remove wall (connect neighbors)
-                    print("Removing wall between", (i, j), "and", wall)
+                    # Remove wall (by connecting neighbors)
                     maze[(i, j)].append(wall)
                     maze[wall].append((i, j))
 

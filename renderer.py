@@ -15,7 +15,8 @@ def draw_walls(maze, cell_size, wall_width, canvas):
                     (j + 1) * cell_size,
                     i * cell_size,
                     width=wall_width,
-                    fill="red"
+                    fill="black",
+                    tag="wall"
                 )
             if not (i, j - 1) in maze[(i, j)]:  # Western neighbor missing
                 canvas.create_line(
@@ -24,7 +25,8 @@ def draw_walls(maze, cell_size, wall_width, canvas):
                     j * cell_size,
                     (i + 1) * cell_size,
                     width=wall_width,
-                    fill="green"
+                    fill="black",
+                    tag="wall"
                 )
             if not (i, j + 1) in maze[(i, j)]:  # Eastern neighbor missing
                 canvas.create_line(
@@ -33,7 +35,8 @@ def draw_walls(maze, cell_size, wall_width, canvas):
                     (j + 1) * cell_size,
                     (i + 1) * cell_size,
                     width=wall_width,
-                    fill="blue"
+                    fill="black",
+                    tag="wall"
                 )
             if not (i + 1, j) in maze[(i, j)]:  # Southern neighbor missing
                 canvas.create_line(
@@ -42,7 +45,8 @@ def draw_walls(maze, cell_size, wall_width, canvas):
                     (j + 1) * cell_size,
                     (i + 1) * cell_size,
                     width=wall_width,
-                    fill="yellow"
+                    fill="black",
+                    tag="wall"
                 )
 
 def draw_grid(maze, cell_size, grid_width, canvas):
@@ -54,7 +58,8 @@ def draw_grid(maze, cell_size, grid_width, canvas):
             n * cell_size,
             i * cell_size,
             width=grid_width,
-            fill="grey"
+            fill="grey",
+            tag="grid"
         )
     for j in range(n):
         canvas.create_line(
@@ -63,28 +68,62 @@ def draw_grid(maze, cell_size, grid_width, canvas):
             j * cell_size,
             m * cell_size,
             width=grid_width,
-            fill="grey"
+            fill="grey",
+            tag="grid"
         )
 
 
-def render_maze(maze, cell_size=50, wall_width=5, grid_width=1):
+def render_maze(maze, canvas, cell_size=50, wall_width=5, grid_width=1):
     """
     Render a maze using tkinter.
     """
-
-    m, n = get_maze_size(maze)
-    root = tk.Tk()
-    root.title("Maze")
-    canvas = tk.Canvas(root, width=n * cell_size, height=m * cell_size)
-    canvas.pack()
-
     draw_grid(maze, cell_size, grid_width, canvas)
     draw_walls(maze, cell_size, wall_width, canvas)
 
-    root.mainloop()
-
+def render_gems(blue_gem_coords, red_gem_coords, canvas, gem_size, cell_size):
+    """
+    Render gems using tkinter.
+    """
+    canvas.delete("gem") # delete old gems
+    for i, j in blue_gem_coords:
+        canvas.create_oval(
+            j * cell_size + cell_size // 2 - gem_size // 2,
+            i * cell_size + cell_size // 2 - gem_size // 2,
+            j * cell_size + cell_size // 2 + gem_size // 2,
+            i * cell_size + cell_size // 2 + gem_size // 2,
+            fill="blue",
+            tag="gem"
+        )
+    for i, j in red_gem_coords:
+        canvas.create_oval(
+            j * cell_size + cell_size // 2 - gem_size // 2,
+            i * cell_size + cell_size // 2 - gem_size // 2,
+            j * cell_size + cell_size // 2 + gem_size // 2,
+            i * cell_size + cell_size // 2 + gem_size // 2,
+            fill="red",
+            tag="gem"
+        )
 
 if __name__ == "__main__":
     random.seed(0)
-    maze = create_maze(15, 10, (0, 0), 1.0)
-    render_maze(maze, 50)
+    rows, cols = 15, 10
+    cell_size = 50
+    red_gem_count = 5
+    blue_gem_count = 5
+    blue_gem_coords = random.sample([(i, j) for i in range(rows) for j in range(cols)], blue_gem_count)
+    red_gem_coords = random.sample([(i, j) for i in range(rows) for j in range(cols)], red_gem_count)
+    maze = create_maze(rows, cols, (0, 0), 0.2)
+
+    # Create a window
+    root = tk.Tk()
+    root.title("Maze")
+
+    # Create a canvas
+    canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
+    canvas.pack()
+
+    render_maze(maze, canvas=canvas, cell_size=cell_size)
+    render_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
+
+    # Run the main loop
+    root.mainloop()

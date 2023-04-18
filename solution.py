@@ -1,8 +1,7 @@
 import tkinter as tk
 import random
-from time import sleep
-from maze import create_maze
-from renderer import render_maze, render_gems
+from minosrecurse.maze import create_maze
+from minosrecurse.renderer import draw_maze, draw_gems, draw_minotaurus
 
 random.seed(0)
 red_gem_coords = []
@@ -10,9 +9,18 @@ blue_gem_coords = []
 found = False
 rows, cols = 15, 10
 cell_size = 50
+maze = create_maze(rows, cols, (0, 0), 0.2)
+root = tk.Tk()
+root.title("Maze")
+canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
+canvas.pack()
+
+draw_maze(maze, canvas=canvas, cell_size=cell_size)
+minotaurus = random.choice(list(maze.keys()))
+draw_minotaurus(minotaurus, canvas, cell_size // 2, cell_size)
 
 def render():
-    render_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
+    draw_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
     canvas.update()
     canvas.after(100)
 
@@ -52,18 +60,6 @@ def DFS(pos):
     turn_gem_red(pos)
     
     render()
-
-maze = create_maze(rows, cols, (0, 0), 0.2)
-
-# Create a window
-root = tk.Tk()
-root.title("Maze")
-
-# Create a canvas
-canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
-canvas.pack()
-
-render_maze(maze, canvas=canvas, cell_size=cell_size)
 
 DFS((0, 0))
 

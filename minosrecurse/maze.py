@@ -1,5 +1,5 @@
 import random
-from utils import get_maze_size
+from minosrecurse.utils import get_maze_size
 
 def count_neighbors_in_2x2_subgraph(maze, bi, bj):
     """

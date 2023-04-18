@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
-from maze import create_maze
-from utils import get_maze_size
+from minosrecurse.maze import create_maze
+from minosrecurse.utils import get_maze_size
 
 def draw_walls(maze, cell_size, wall_width, canvas):
     m, n = get_maze_size(maze)
@@ -73,14 +73,14 @@ def draw_grid(maze, cell_size, grid_width, canvas):
         )
 
 
-def render_maze(maze, canvas, cell_size=50, wall_width=5, grid_width=1):
+def draw_maze(maze, canvas, cell_size=50, wall_width=5, grid_width=1):
     """
     Render a maze using tkinter.
     """
     draw_grid(maze, cell_size, grid_width, canvas)
     draw_walls(maze, cell_size, wall_width, canvas)
 
-def render_gems(blue_gem_coords, red_gem_coords, canvas, gem_size, cell_size):
+def draw_gems(blue_gem_coords, red_gem_coords, canvas, gem_size, cell_size):
     """
     Render gems using tkinter.
     """
@@ -104,6 +104,65 @@ def render_gems(blue_gem_coords, red_gem_coords, canvas, gem_size, cell_size):
             tag="gem"
         )
 
+def draw_minotaurus(minotaurus_coords, canvas, minotaurus_size, cell_size):
+    """
+    Render minotaurus using tkinter.
+    """
+    canvas.delete("minotaurus") # delete old minotaurus
+    i, j = minotaurus_coords
+
+    # Horns (base)
+    canvas.create_oval(
+        j * cell_size,
+        i * cell_size,
+        j * cell_size + cell_size,
+        i * cell_size + cell_size // 2,
+        fill="black",
+        tag="minotaurus",
+        outline="lightgrey"
+    )
+
+    # Horns (mask)
+    canvas.create_oval(
+        j * cell_size + cell_size // 5,
+        i * cell_size,
+        j * cell_size + cell_size // 5 * 4,
+        i * cell_size + cell_size // 4,
+        fill="lightgrey",
+        tag="minotaurus",
+        outline=""
+    )
+
+    # Body
+    canvas.create_oval(
+        j * cell_size + cell_size // 2 - minotaurus_size // 2,
+        i * cell_size + cell_size // 2 - minotaurus_size // 2,
+        j * cell_size + cell_size // 2 + minotaurus_size // 2,
+        i * cell_size + cell_size // 2 + minotaurus_size // 2,
+        fill="black",
+        tag="minotaurus"
+    )
+
+    # Eyes
+    canvas.create_oval(
+        j * cell_size + cell_size // 2 - minotaurus_size // 3,
+        i * cell_size + cell_size // 2 - minotaurus_size // 4,
+        j * cell_size + cell_size // 2 - minotaurus_size // 8,
+        i * cell_size + cell_size // 2,
+        fill="red",
+        tag="minotaurus"
+    )
+
+    canvas.create_oval(
+        j * cell_size + cell_size // 2 + minotaurus_size // 8,
+        i * cell_size + cell_size // 2 - minotaurus_size // 4,
+        j * cell_size + cell_size // 2 + minotaurus_size // 3,
+        i * cell_size + cell_size // 2,
+        fill="red",
+        tag="minotaurus"
+    )
+
+
 if __name__ == "__main__":
     random.seed(0)
     rows, cols = 15, 10
@@ -122,8 +181,8 @@ if __name__ == "__main__":
     canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
     canvas.pack()
 
-    render_maze(maze, canvas=canvas, cell_size=cell_size)
-    render_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
+    draw_maze(maze, canvas=canvas, cell_size=cell_size)
+    draw_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
 
     # Run the main loop
     root.mainloop()

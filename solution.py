@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
 from minosrecurse.maze import create_maze
-from minosrecurse.renderer import draw_maze, draw_gems, draw_minotaurus
+from minosrecurse.renderer import draw_maze, draw_gems, draw_minotaurus, draw_player
 
 random.seed(0)
 red_gem_coords = []
@@ -9,7 +9,7 @@ blue_gem_coords = []
 found = False
 rows, cols = 15, 10
 cell_size = 50
-maze = create_maze(rows, cols, (0, 0), 0.2)
+maze = create_maze(rows, cols, (0, 0), 1.0)
 root = tk.Tk()
 root.title("Maze")
 canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
@@ -20,8 +20,9 @@ draw_maze(maze, canvas=canvas, cell_size=cell_size)
 minotaurus = random.choice(list(maze.keys()))
 draw_minotaurus(minotaurus, canvas, cell_size // 2, cell_size)
 
-def render():
+def render(pos):
     draw_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
+    draw_player(canvas, pos, cell_size)
     canvas.update()
     canvas.after(render_delay)
 
@@ -53,29 +54,34 @@ def get_neighbors(pos):
     """
     return maze[pos]
 
+
+curr_path = []
+
 def DFS(pos):
-    """
-    For students to implement.
-    """
-    print(found)
-    if was_found():
-        return
 
-    if pos == minotaurus:
-        found_minotaurus()
-        return
+    render(pos) # render the maze after each step
 
-    put_blue_gem(pos)
-    
-    render()
+    while (True):
+        put_blue_gem(pos)
+        neighbors = get_neighbors(pos)
+        for neighbor in neighbors:
+            if not has_blue_gem(neighbor) and not has_red_gem(neighbor):
+                pos = neighbor
+                curr_path.append(pos)
+        render(pos)
 
-    neighbors = get_neighbors(pos)
-    for neighbor in neighbors:
-        if not has_blue_gem(neighbor) and not has_red_gem(neighbor):
-            DFS(neighbor)
-    turn_gem_red(pos)
-    
-    render()
+        # Backtracking.
+        is_dead_end = [n for n in neighbors if not has_blue_gem(n) and not has_red_gem(n)] == []
+        if is_dead_end:
+            while curr_path != []:
+                pos = curr_path.pop()
+                turn_gem_red(pos)
+                render(pos)
+        
+        if pos == minotaurus:
+            found_minotaurus()
+            break
+
 
 DFS((0, 0))
 

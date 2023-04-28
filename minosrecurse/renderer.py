@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
 from minosrecurse.maze import create_maze
-from minosrecurse.utils import get_maze_size
+from minosrecurse.maze_utils import get_maze_size
 
 def draw_walls(maze, cell_size, wall_width, canvas):
     m, n = get_maze_size(maze)
@@ -79,6 +79,20 @@ def draw_maze(maze, canvas, cell_size=50, wall_width=5, grid_width=1):
     """
     draw_grid(maze, cell_size, grid_width, canvas)
     draw_walls(maze, cell_size, wall_width, canvas)
+
+def draw_player(canvas, pos, cell_size=50):
+    """
+    Render the player using tkinter.
+    """
+    canvas.delete("player")
+    canvas.create_oval(
+        pos[1] * cell_size + cell_size // 4,
+        pos[0] * cell_size + cell_size // 4,
+        pos[1] * cell_size + 3 * cell_size // 4,
+        pos[0] * cell_size + 3 * cell_size // 4,
+        fill="green",
+        tag="player"
+    )
 
 def draw_gems(blue_gem_coords, red_gem_coords, canvas, gem_size, cell_size):
     """

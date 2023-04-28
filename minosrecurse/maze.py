@@ -1,5 +1,4 @@
 import random
-from minosrecurse.utils import get_maze_size
 
 def count_neighbors_in_2x2_subgraph(maze, bi, bj):
     """
@@ -92,6 +91,9 @@ def create_maze(rows, cols, start, p_remove=0.9):
                     # Remove wall (by connecting neighbors)
                     maze[(i, j)].append(wall)
                     maze[wall].append((i, j))
+    
+    for node, neighbors in maze.items():
+        maze[node] = sorted(list(set(neighbors)))
 
     return maze
 

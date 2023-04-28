@@ -176,6 +176,20 @@ def draw_minotaurus(minotaurus_coords, canvas, minotaurus_size, cell_size):
         tag="minotaurus"
     )
 
+def draw_path_segment(source, target, canvas, cell_size):
+    """
+    Render a path segment using tkinter.
+    """
+    canvas.create_line(
+        source[1] * cell_size + cell_size // 2,
+        source[0] * cell_size + cell_size // 2,
+        target[1] * cell_size + cell_size // 2,
+        target[0] * cell_size + cell_size // 2,
+        fill="green",
+        width=5,
+        tag="path"
+    )
+
 
 if __name__ == "__main__":
     random.seed(0)

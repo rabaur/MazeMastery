@@ -1,9 +1,9 @@
 import tkinter as tk
 import random
 from minosrecurse.maze import create_maze
-from minosrecurse.renderer import draw_maze, draw_gems, draw_minotaurus, draw_player
+from minosrecurse.renderer import draw_maze, draw_gems, draw_minotaurus, draw_player, draw_path_segment
 
-random.seed(0)
+random.seed(1)
 red_gem_coords = []
 blue_gem_coords = []
 found = False
@@ -19,6 +19,14 @@ render_delay = 100
 draw_maze(maze, canvas=canvas, cell_size=cell_size)
 minotaurus = random.choice(list(maze.keys()))
 draw_minotaurus(minotaurus, canvas, cell_size // 2, cell_size)
+pos = (0, 0)
+
+def move(new):
+    global pos
+    draw_path_segment(pos, new, canvas, cell_size)
+    pos = new
+    render(pos)
+
 
 def render(pos):
     draw_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
@@ -55,35 +63,27 @@ def get_neighbors(pos):
     return maze[pos]
 
 
-curr_path = []
+stack = []
 
-def DFS(pos):
-
-    render(pos) # render the maze after each step
-
-    while (True):
+def DFS():
+    global pos
+    while (not was_found()):
         put_blue_gem(pos)
-        neighbors = get_neighbors(pos)
-        for neighbor in neighbors:
-            if not has_blue_gem(neighbor) and not has_red_gem(neighbor):
-                pos = neighbor
-                curr_path.append(pos)
-        render(pos)
-
-        # Backtracking.
-        is_dead_end = [n for n in neighbors if not has_blue_gem(n) and not has_red_gem(n)] == []
-        if is_dead_end:
-            while curr_path != []:
-                pos = curr_path.pop()
-                turn_gem_red(pos)
-                render(pos)
-        
         if pos == minotaurus:
             found_minotaurus()
-            break
-
-
-DFS((0, 0))
+            return
+        neighbors = get_neighbors(pos)
+        unvisited_neighbors = []
+        for neighbor in neighbors:
+            if not has_blue_gem(neighbor) and not has_red_gem(neighbor):
+                unvisited_neighbors.append(neighbor)
+        if unvisited_neighbors != []:
+            stack.append(pos)
+            move(random.choice(unvisited_neighbors))
+        else:
+            turn_gem_red(pos)
+            move(stack.pop())
+DFS()
 
 # Run the main loop
 root.mainloop()

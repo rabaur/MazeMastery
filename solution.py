@@ -179,11 +179,13 @@ def search6():
     all_neighbors = get_neighbors(pos)
     for neighbor in all_neighbors:
         if not has_blue_gem(neighbor) and not has_red_gem(neighbor):
+            old_pos = pos
             if neighbor == minotaurus:
                 found_minotaurus()
             move(neighbor)
             search6()
             put_red_gem(pos)
+            move(old_pos)
 
 
 if LEVEL == 1:

@@ -37,12 +37,11 @@ elif LEVEL == 6:
     maze = create_maze(rows, cols, (0, 0), 1.0)
     minotaurus = (rows - 1, cols - 1)
 
-
 root = tk.Tk()
 root.title("Maze")
 canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
 canvas.pack()
-render_delay = 250
+render_delay = 20
 
 draw_maze(maze, canvas=canvas, cell_size=cell_size)
 draw_minotaurus(minotaurus, canvas, cell_size // 2, cell_size)
@@ -103,15 +102,14 @@ def get_neighbors(pos):
 stack = []
 
 
-def search1():
-    global pos
-    while True:
+def level1():
+    while (not was_found()):
         i, j = pos
         neighbor = (i, j + 1)
         move(neighbor)
 
-def search2():
-    global pos
+
+def level2():
     while (not was_found()):
         i, j = pos
         neighbor = (i, j + 1)
@@ -119,8 +117,8 @@ def search2():
         if neighbor == minotaurus:
             found_minotaurus()
 
-def search3():
-    global pos
+
+def level3():
     while (not was_found()):
         put_blue_gem(pos)
         all_neighbors = get_neighbors(pos)
@@ -133,8 +131,8 @@ def search3():
         if neighbor == minotaurus:
             found_minotaurus()
 
-def search4():
-    global pos
+
+def level4():
     while (not was_found()):
         put_blue_gem(pos)
         all_neighbors = get_neighbors(pos)
@@ -151,10 +149,10 @@ def search4():
         move(neighbor)
         if neighbor == minotaurus:
             found_minotaurus()
+
 
 # Probably remove
-def search5():
-    global pos
+def level5():
     while (not was_found()):
         put_blue_gem(pos)
         all_neighbors = get_neighbors(pos)
@@ -172,35 +170,34 @@ def search5():
         if neighbor == minotaurus:
             found_minotaurus()
 
-def search6():
-    if was_found():
-        return
+
+def level6():
+    if was_found(): return
     put_blue_gem(pos)
     all_neighbors = get_neighbors(pos)
     for neighbor in all_neighbors:
-        if not has_blue_gem(neighbor) and not has_red_gem(neighbor):
+        if not has_blue_gem(neighbor):
             old_pos = pos
+            move(neighbor)
             if neighbor == minotaurus:
                 found_minotaurus()
-            move(neighbor)
-            search6()
+            level6()
             put_red_gem(pos)
             move(old_pos)
 
 
 if LEVEL == 1:
-    search1()
+    level1()
 elif LEVEL == 2:
-    search2()
+    level2()
 elif LEVEL == 3:
-    search3()
+    level3()
 elif LEVEL == 4:
-    search4()
+    level4()
 elif LEVEL == 5:
-    search5()
+    level5()
 elif LEVEL == 6:
-    search6()
-
+    level6()
 
 # Run the main loop
 root.mainloop()

@@ -10,7 +10,7 @@ from minosrecurse.renderer import (
     draw_path_segment,
 )
 
-LEVEL = 6
+LEVEL = 1
 random.seed(0)
 red_gem_coords = []
 blue_gem_coords = []
@@ -31,9 +31,6 @@ elif LEVEL == 4:
     maze = create_maze(rows, cols, (0, 0), 0.0)
     minotaurus = (rows - 1, cols - 1)
 elif LEVEL == 5:
-    maze = create_maze(rows, cols, (0, 0), 1.0)
-    minotaurus = (rows - 1, cols - 1)
-elif LEVEL == 6:
     maze = create_maze(rows, cols, (0, 0), 1.0)
     minotaurus = (rows - 1, cols - 1)
 
@@ -151,27 +148,7 @@ def level4():
             found_minotaurus()
 
 
-# Probably remove
 def level5():
-    while (not was_found()):
-        put_blue_gem(pos)
-        all_neighbors = get_neighbors(pos)
-        neighbors = []
-        for neighbor in all_neighbors:
-            if not has_blue_gem(neighbor):
-                neighbors.append(neighbor)
-        if neighbors != []:
-            stack.append(pos)
-            neighbor = neighbors[0]
-        else:
-            put_red_gem(pos)
-            neighbor = stack.pop()
-        move(neighbor)
-        if neighbor == minotaurus:
-            found_minotaurus()
-
-
-def level6():
     if was_found(): return
     put_blue_gem(pos)
     all_neighbors = get_neighbors(pos)
@@ -181,7 +158,7 @@ def level6():
             move(neighbor)
             if neighbor == minotaurus:
                 found_minotaurus()
-            level6()
+            level5()
             put_red_gem(pos)
             move(old_pos)
 
@@ -196,8 +173,6 @@ elif LEVEL == 4:
     level4()
 elif LEVEL == 5:
     level5()
-elif LEVEL == 6:
-    level6()
 
 # Run the main loop
 root.mainloop()

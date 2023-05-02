@@ -10,7 +10,7 @@ from minosrecurse.renderer import (
     draw_path_segment,
 )
 
-LEVEL = 1
+LEVEL = 5
 random.seed(0)
 red_gem_coords = []
 blue_gem_coords = []
@@ -31,14 +31,14 @@ elif LEVEL == 4:
     maze = create_maze(rows, cols, (0, 0), 0.0)
     minotaurus = (rows - 1, cols - 1)
 elif LEVEL == 5:
-    maze = create_maze(rows, cols, (0, 0), 1.0)
-    minotaurus = (rows - 1, cols - 1)
+    maze = create_maze(rows, cols, (0, 0), 0.1)
+    minotaurus = (rows - 4, cols - 4)
 
 root = tk.Tk()
 root.title("Maze")
 canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
 canvas.pack()
-render_delay = 20
+render_delay = 100
 
 draw_maze(maze, canvas=canvas, cell_size=cell_size)
 draw_minotaurus(minotaurus, canvas, cell_size // 2, cell_size)
@@ -149,7 +149,6 @@ def level4():
 
 
 def level5():
-    if was_found(): return
     put_blue_gem(pos)
     all_neighbors = get_neighbors(pos)
     for neighbor in all_neighbors:
@@ -158,6 +157,7 @@ def level5():
             move(neighbor)
             if neighbor == minotaurus:
                 found_minotaurus()
+            if was_found(): return
             level5()
             put_red_gem(pos)
             move(old_pos)

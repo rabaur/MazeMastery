@@ -154,14 +154,13 @@ def level5():
     for neighbor in all_neighbors:
         if not has_blue_gem(neighbor):
             old_pos = pos
+            if was_found(): return
             move(neighbor)
             if neighbor == minotaurus:
                 found_minotaurus()
-            if was_found(): return
             level5()
             put_red_gem(pos)
             move(old_pos)
-
 
 if LEVEL == 1:
     level1()

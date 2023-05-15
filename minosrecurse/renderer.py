@@ -59,6 +59,12 @@ class Renderer:
         self.gem_sixth = self.gem_size // 6
         self.third = self.cell_size // 3
         self.shadow_offset = self.cell_size // 3
+        self.maze_extents = [
+            self.offset_cols * self.cell_size,
+            self.offset_rows * self.cell_size,
+            (self.n + self.offset_cols) * self.cell_size,
+            (self.m + self.offset_rows) * self.cell_size,
+        ]
 
         # Canvas to draw on
         root = tk.Tk()
@@ -332,37 +338,66 @@ class Renderer:
             width=2
         )
     
-    def draw_grass_blades(self, pos, num_blades=4, blade_width=4):
+    def draw_grass_blades(self, pos, num_grass=3, num_blades=4, blade_width=4):
         """
         Draws some weeds at a random position in the cell (i, j).
         """
         max_height = self.cell_size // 2
+        min_height = self.cell_size // 4
 
         # Random position in the cell (i, j)
-        i, j = pos
-        x = (j + self.offset_cols) * self.cell_size + random.randint(0, self.cell_size)
-        y = (i + self.offset_rows) * self.cell_size + random.randint(0, self.cell_size)
-        for i in range(num_blades):
-            blade_height = random.randint(0, max_height)
-            blade_x = x + i * 2 * blade_width
-            self.canvas.create_rectangle(
-                blade_x,
-                y,
-                blade_x + blade_width,
-                y - blade_height,
-                fill=Colors.grass_base,
-                outline="",
-                tag="grass_blade",
-            )
-            self.canvas.create_rectangle(
-                blade_x,
-                y - blade_height + blade_width,
-                blade_x + blade_width,
-                y - blade_height,
-                fill=Colors.grass_top,
-                outline="",
-                tag="grass_blade",
-            )
+        k, j = pos
+
+        # Generate positions before drawing to potentially change drawing order
+        base_positions = []
+        for _ in range(num_grass):
+            x = (j + self.offset_cols) * self.cell_size + random.randint(0, self.cell_size - num_blades * 2 * blade_width)
+            y = (k + self.offset_rows) * self.cell_size + random.randint(0, self.cell_size)
+            base_positions.append((x, y))
+        
+        # Order positions lexicographically by x, then y
+        base_positions.sort(key=lambda pos: (pos[0], pos[1]))
+        
+        for (x, y) in base_positions:
+            for k in range(num_blades):
+                blade_height = random.randint(min_height, max_height)
+                blade_x = x + k * 2 * blade_width
+                
+                # Shadow
+                shadow_offset_x = min(blade_x + self.shadow_offset * blade_height / max_height, self.maze_extents[2]) - blade_x
+                shadow_offset_y = min(y + self.shadow_offset * blade_height / max_height, self.maze_extents[3]) - y
+                shadow_offset = min(shadow_offset_x, shadow_offset_y)
+                self.canvas.create_line(
+                    blade_x,
+                    y,
+                    # Make shadow offset proportional to blade height
+                    blade_x + shadow_offset,
+                    y + shadow_offset,
+                    width=blade_width,
+                    fill=Colors.green_border,
+                    tag="grass_blade"
+                )
+                
+                self.canvas.create_rectangle(
+                    blade_x,
+                    y,
+                    blade_x + blade_width,
+                    y - blade_height,
+                    fill=Colors.grass_base,
+                    outline="",
+                    tag="grass_blade",
+                )
+
+                # Small highlight
+                self.canvas.create_rectangle(
+                    blade_x,
+                    y - blade_height + blade_width,
+                    blade_x + blade_width,
+                    y - blade_height,
+                    fill=Colors.grass_top,
+                    outline="",
+                    tag="grass_blade",
+                )
 
     
     def draw_grass(self):
@@ -385,8 +420,10 @@ class Renderer:
                     outline="",
                     tag="cell",
                 )
-                for _ in range(3):
-                    self.draw_grass_blades((i, j))
+        for i in range(self.m):
+            for j in range(self.n):
+                if self.maze[(i, j)] == []:
+                        self.draw_grass_blades((i, j))
 
     def draw_maze(self):
         """

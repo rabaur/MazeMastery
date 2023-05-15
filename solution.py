@@ -1,11 +1,10 @@
-import tkinter as tk
 import random
 from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import create_corridor, create_SAW
 from minosrecurse.renderer import Renderer
 
-LEVEL = 3
-random.seed(2)
+LEVEL = 4
+random.seed(3)
 red_gem_coords = []
 blue_gem_coords = []
 found = False

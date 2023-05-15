@@ -2,13 +2,7 @@ import tkinter as tk
 import random
 from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import create_corridor, create_SAW
-from minosrecurse.renderer import (
-    draw_maze,
-    draw_gems,
-    draw_minotaurus,
-    draw_player,
-    draw_path_segment,
-)
+from minosrecurse.renderer import Renderer
 
 LEVEL = 3
 random.seed(2)
@@ -16,7 +10,6 @@ red_gem_coords = []
 blue_gem_coords = []
 found = False
 rows, cols = 15, 10
-cell_size = 100
 
 if LEVEL == 1:
     maze = create_corridor(cols)
@@ -37,14 +30,10 @@ elif LEVEL == 6:
     maze = create_maze(rows, cols, (0, 0), 0.2)
     minotaurus = (rows - 4, cols - 4)
 
-root = tk.Tk()
-root.title("Maze")
-canvas = tk.Canvas(root, width=(cols + 2) * cell_size, height=(rows + 2) * cell_size)
-canvas.pack()
-render_delay = 100
+renderer = Renderer(maze)
 
-draw_maze(maze, canvas=canvas, cell_size=cell_size)
-draw_minotaurus(minotaurus, canvas, cell_size // 2, cell_size)
+renderer.draw_maze()
+renderer.draw_minotaurus(minotaurus)
 pos = (0, 0)
 
 
@@ -53,16 +42,16 @@ def move(new):
     if new not in maze[pos]:
         print("OUCH!")
         new = pos
-    draw_path_segment(pos, new, canvas, cell_size)
+    renderer.draw_path_segment(pos, new)
     pos = new
     render(pos)
 
 
 def render(pos):
-    draw_gems(blue_gem_coords, red_gem_coords, canvas, cell_size // 2, cell_size)
-    draw_player(canvas, pos, cell_size)
-    canvas.update()
-    canvas.after(render_delay)
+    renderer.draw_gems(blue_gem_coords, red_gem_coords)
+    renderer.draw_player(pos)
+    renderer.update()
+    renderer.after()
 
 
 def put_blue_gem(cell):
@@ -200,4 +189,4 @@ elif LEVEL == 6:
     level6()
 
 # Run the main loop
-root.mainloop()
+renderer.mainloop()

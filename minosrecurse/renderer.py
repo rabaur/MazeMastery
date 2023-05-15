@@ -128,21 +128,50 @@ class Renderer:
                 off_i = i + self.offset_rows
                 off_j = j + self.offset_cols
                 if not (i - 1, j) in self.maze[(i, j)]:  # Horizontal shadow
+
+                    # If there is a wall to the left, we need to adjust
+                    # the shadow to the left because of the thickness of the
+                    # wall
+                    if (i, j - 1) not in self.maze[(i, j)]:
+                        left_x = off_j * self.cell_size
+                    else:
+                        left_x = off_j * self.cell_size - 2 * self.wall_width
+                    
+                    # If there is a wall to the right, we need to clip the shadow to avoid bleeding beyong the wall
+                    if (i, j + 1) not in self.maze[(i, j)]:
+                        right_x = (off_j + 1) * self.cell_size
+                    else:
+                        right_x = (off_j + 1) * self.cell_size + self.shadow_offset
                     self.canvas.create_polygon(
-                        off_j * self.cell_size, off_i * self.cell_size,
-                        (off_j + 1) * self.cell_size, off_i * self.cell_size,
-                        (off_j + 1) * self.cell_size + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
-                        off_j * self.cell_size + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
+                        left_x, off_i * self.cell_size,
+                        (off_j + 1) * self.cell_size, off_i * self.cell_size - 2 * self.wall_width,  # compensating for wall-width
+                        right_x, off_i * self.cell_size,
+                        right_x, off_i * self.cell_size + self.shadow_offset,
+                        left_x + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
                         fill=Colors.brown_border,
                         tag="shadow"
                     )
                     
                 if not (i, j - 1) in self.maze[(i, j)]:  # Vertical shadow
+                    # If there is no wall to the top, we need to adjust the 
+                    # shadow to the top because of the tickness of the wall
+                    if (i - 1, j) not in self.maze[(i, j)]:
+                        top_y = off_i * self.cell_size
+                    else:
+                        top_y = off_i * self.cell_size - 2 * self.wall_width
+
+                    # If there is a wall below, we need to clip the shadow to
+                    # avoid bleeding beyong the wall
+                    if (i + 1, j) not in self.maze[(i, j)]:
+                        bottom_y = (off_i + 1) * self.cell_size
+                    else:
+                        bottom_y = (off_i + 1) * self.cell_size + self.shadow_offset
                     self.canvas.create_polygon(
-                        off_j * self.cell_size, off_i * self.cell_size,
-                        off_j * self.cell_size + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
-                        off_j * self.cell_size + self.shadow_offset, (off_i + 1) * self.cell_size + self.shadow_offset,
-                        off_j * self.cell_size, (off_i + 1) * self.cell_size,
+                        off_j * self.cell_size, top_y,
+                        off_j * self.cell_size + self.shadow_offset, top_y + self.shadow_offset,
+                        off_j * self.cell_size + self.shadow_offset, bottom_y,
+                        off_j * self.cell_size, bottom_y,
+                        off_j * self.cell_size - 2 * self.wall_width, (off_i + 1) * self.cell_size,
                         fill=Colors.brown_border,
                         tag="shadow"
                     )

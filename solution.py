@@ -10,13 +10,13 @@ from minosrecurse.renderer import (
     draw_path_segment,
 )
 
-LEVEL = 5
-random.seed(0)
+LEVEL = 3
+random.seed(2)
 red_gem_coords = []
 blue_gem_coords = []
 found = False
 rows, cols = 15, 10
-cell_size = 50
+cell_size = 100
 
 if LEVEL == 1:
     maze = create_corridor(cols)
@@ -29,14 +29,17 @@ elif LEVEL == 3:
     minotaurus = path[-1]
 elif LEVEL == 4:
     maze = create_maze(rows, cols, (0, 0), 0.0)
-    minotaurus = (rows - 1, cols - 1)
+    minotaurus = (rows - 4, cols - 4)
 elif LEVEL == 5:
-    maze = create_maze(rows, cols, (0, 0), 0.1)
+    maze = create_maze(rows, cols, (0, 0), 0.2)
+    minotaurus = (rows - 4, cols - 4)
+elif LEVEL == 6:
+    maze = create_maze(rows, cols, (0, 0), 0.2)
     minotaurus = (rows - 4, cols - 4)
 
 root = tk.Tk()
 root.title("Maze")
-canvas = tk.Canvas(root, width=cols * cell_size, height=rows * cell_size)
+canvas = tk.Canvas(root, width=(cols + 2) * cell_size, height=(rows + 2) * cell_size)
 canvas.pack()
 render_delay = 100
 
@@ -114,6 +117,8 @@ def level2():
         if neighbor == minotaurus:
             found_minotaurus()
 
+# Level 2.5: Two complexities. Neighbors and gems
+# Maybe hardcoding the direction as intermediate level.
 
 def level3():
     while (not was_found()):
@@ -138,6 +143,26 @@ def level4():
             if not has_blue_gem(neighbor):
                 neighbors.append(neighbor)
         if neighbors != []:
+            neighbor = neighbors[0]
+            move(neighbor)
+        else:
+            for neighbor in all_neighbors:
+                if not has_red_gem(neighbor):
+                    put_red_gem(pos)
+                    move(neighbor)
+        if neighbor == minotaurus:
+            found_minotaurus()
+
+
+def level5():
+    while (not was_found()):
+        put_blue_gem(pos)
+        all_neighbors = get_neighbors(pos)
+        neighbors = []
+        for neighbor in all_neighbors:
+            if not has_blue_gem(neighbor):
+                neighbors.append(neighbor)
+        if neighbors != []:
             stack.append(pos)
             neighbor = neighbors[0]
         else:
@@ -147,8 +172,7 @@ def level4():
         if neighbor == minotaurus:
             found_minotaurus()
 
-
-def level5():
+def level6():
     put_blue_gem(pos)
     all_neighbors = get_neighbors(pos)
     for neighbor in all_neighbors:
@@ -158,7 +182,7 @@ def level5():
             move(neighbor)
             if neighbor == minotaurus:
                 found_minotaurus()
-            level5()
+            level6()
             put_red_gem(pos)
             move(old_pos)
 
@@ -172,6 +196,8 @@ elif LEVEL == 4:
     level4()
 elif LEVEL == 5:
     level5()
+elif LEVEL == 6:
+    level6()
 
 # Run the main loop
 root.mainloop()

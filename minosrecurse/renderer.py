@@ -18,7 +18,15 @@ class Colors:
         2: "#00cdf9",
         3: "#94fdff",
         4: "#ffffff",
-        "base": "#0cf1ff",
+        "main": "#0cf1ff",
+    }
+    reds = {
+        0: "#9d2231",
+        1: "#e12937",
+        2: "#ff5858",
+        3: "#ff9ba2",
+        4: "#ffffff",
+        "main": "#ff616b",
     }
 
 class Renderer:
@@ -44,6 +52,15 @@ class Renderer:
         self.gem_size = gem_size if gem_size else cell_size // 2
         self.delay = delay
         self.m, self.n = get_maze_size(maze)
+
+        # Some sizes
+        self.gem_size = self.cell_size // 2
+        self.gem_third = self.gem_size // 3
+        self.gem_sixth = self.gem_size // 6
+        self.third = self.cell_size // 3
+        self.shadow_offset = self.cell_size // 3
+
+        # Canvas to draw on
         root = tk.Tk()
         root.title("Maze")
         self.canvas = tk.Canvas(
@@ -104,6 +121,32 @@ class Renderer:
                         wall_width=wall_width,
                         wall_color=wall_color,
                     )
+    
+    def draw_wall_shadows(self):
+        for i in range(self.m):
+            for j in range(self.n):
+                off_i = i + self.offset_rows
+                off_j = j + self.offset_cols
+                if not (i - 1, j) in self.maze[(i, j)]:  # Horizontal shadow
+                    self.canvas.create_polygon(
+                        off_j * self.cell_size, off_i * self.cell_size,
+                        (off_j + 1) * self.cell_size, off_i * self.cell_size,
+                        (off_j + 1) * self.cell_size + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
+                        off_j * self.cell_size + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
+                        fill=Colors.brown_border,
+                        tag="shadow"
+                    )
+                    
+                if not (i, j - 1) in self.maze[(i, j)]:  # Vertical shadow
+                    self.canvas.create_polygon(
+                        off_j * self.cell_size, off_i * self.cell_size,
+                        off_j * self.cell_size + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
+                        off_j * self.cell_size + self.shadow_offset, (off_i + 1) * self.cell_size + self.shadow_offset,
+                        off_j * self.cell_size, (off_i + 1) * self.cell_size,
+                        fill=Colors.brown_border,
+                        tag="shadow"
+                    )
+
 
     def draw_grid(self):
         for i in range(self.m + self.offset_rows):
@@ -129,21 +172,20 @@ class Renderer:
     
     def draw_gem(self, pos, gem_size, color):
         """
-        Draws a fancy gem at a random position in the cell (i, j).
+        Draws a fancy gem at in the cell (i, j).
         """
         # Random position in the cell (i, j)
         i, j = pos
         offset = (self.cell_size - gem_size) // 2
         base_x = (j + self.offset_cols) * self.cell_size + offset
         base_y = (i + self.offset_rows) * self.cell_size + offset
-        thirds = gem_size // 3
-        xs = [base_x + i * thirds for i in range(4)]
-        ys = list(reversed([base_y + i * thirds for i in range(4)]))
+        xs = [base_x + i * self.gem_third for i in range(4)]
+        ys = list(reversed([base_y + i * self.gem_third for i in range(4)]))
 
         # Shadow
         self.canvas.create_oval(
-            xs[0], ys[1],
-            xs[3], ys[0] + thirds // 2,
+            xs[0] + self.gem_sixth, ys[1],
+            xs[3] + self.gem_sixth, ys[0] + self.gem_sixth,
             fill=Colors.brown_border,
             outline=""
         )
@@ -168,7 +210,7 @@ class Renderer:
             xs[1], ys[2],
             xs[2], ys[2],
             xs[2], ys[1],
-            fill=color["base"],
+            fill=color["main"],
             outline=color[1],
             width=2
         )
@@ -176,8 +218,8 @@ class Renderer:
         # Shine
         self.canvas.create_polygon(
             xs[1], ys[1],
-            xs[1], ys[1] - thirds // 2,
-            xs[1] + thirds // 2, ys[2],
+            xs[1], ys[1] - self.gem_sixth,
+            xs[1] + self.gem_sixth, ys[2],
             xs[2], ys[2],
             fill=color[3],
             outline=""
@@ -327,6 +369,7 @@ class Renderer:
 
         # Creating illusion of thick walls by overlaying multiple walls
         self.draw_walls(self.wall_width * 4, Colors.brown_border)
+        self.draw_wall_shadows()
         self.draw_walls(self.wall_width * 3, Colors.brown_base)
         self.draw_walls(self.wall_width * 2, Colors.green_border)
         self.draw_walls(self.wall_width, Colors.green_base)
@@ -411,16 +454,7 @@ class Renderer:
             self.draw_gem((i, j), self.cell_size // 2, Colors.blues)
     
         for i, j in red_gem_coords:
-            i += self.offset_rows
-            j += self.offset_cols
-            self.canvas.create_oval(
-                j * self.cell_size + self.cell_size // 2 - self.gem_size // 2,
-                i * self.cell_size + self.cell_size // 2 - self.gem_size // 2,
-                j * self.cell_size + self.cell_size // 2 + self.gem_size // 2,
-                i * self.cell_size + self.cell_size // 2 + self.gem_size // 2,
-                fill="red",
-                tag="gem",
-            )
+            self.draw_gem((i, j), self.cell_size // 2, Colors.reds)
 
     def draw_minotaurus(self, minotaurus_coords):
         """

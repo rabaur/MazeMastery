@@ -1,4 +1,4 @@
-from minosrecurse.solver import Solver, pos, minotauros, move, put_blue_gem, has_red_gem, has_blue_gem, put_red_gem, found_minotaurus, was_found, get_neighbors, push, pop
+from minosrecurse.solver import *
 
 def level1():
     while (not was_found()):
@@ -87,7 +87,7 @@ def level6():
 class MySolver(Solver):
 
     def solve(self):
-        level2()
+        level5()
 
 solver = MySolver(level=5)
 solver.solve()

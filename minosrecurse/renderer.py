@@ -51,6 +51,7 @@ class Renderer:
         self._m, self._n = get_maze_size(maze)
 
         # Derived sizes
+        self._wall_width = self._cell_size // 10
         self._gem_size = gem_size if gem_size else cell_size // 2
         self._minotauros_size = minotauros_size if minotauros_size else cell_size // 2
         self._gem_third = self._gem_size // 3

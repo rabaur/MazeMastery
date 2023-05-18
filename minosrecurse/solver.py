@@ -1,39 +1,63 @@
-class State:
+from minosrecurse.maze import create_maze
+from minosrecurse.maze_utils import create_corridor, create_SAW
+from minosrecurse.renderer import Renderer
+import random
+
+
+class _State:
     """
     State is a singleton class that holds the current state of the maze solver,
     e.g., the current positions of the player, the position of gems, etc. All
     functions that manipulate the state instantiate this class and modify its
     attributes. By doing so, we don't need to bind these state-changing methods
-    to a single class (so no knowledge about OOP is required) and we don't 
+    to a single class (so no knowledge about OOP is required) and we don't
     need to expose state as global variables (which could be imported and
     manipulated by the students directly).
     """
 
     _self = None
 
-    def __new__(cls):
+    def __new__(
+        cls,
+        maze=None,
+        renderer=None,
+        start_pos=(0, 0),
+        minotauros_coords=(0, 0),
+        blue_gem_coords=[],
+        red_gem_coords=[],
+        stack=[],
+        found=False,
+        *args,
+        **kwargs
+    ):
         if cls._self is None:
-            cls._self = super().__new__(cls)
+            print("Creating state")
+            cls._self = super(_State, cls).__new__(cls, *args, **kwargs)
+            cls._self.__maze = maze
+            cls._self.__renderer = renderer
+            cls._self.__pos = start_pos
+            cls._self.__minotauros_coords = minotauros_coords
+            cls._self.__blue_gem_coords = blue_gem_coords
+            cls._self.__red_gem_coords = red_gem_coords
+            cls._self.__stack = stack
+            cls._self.__found = found
         return cls._self
 
     def __init__(
         self,
-        maze,
-        renderer,
+        maze=None,
+        renderer=None,
         start_pos=(0, 0),
-        minotaurus=(0, 0),
+        minotauros_coords=(0, 0),
         blue_gem_coords=[],
         red_gem_coords=[],
-        stack=[]
+        stack=[],
+        found=False,
+        *args,
+        **kwargs
     ):
-        self.__maze = maze
-        self.__renderer = renderer
-        self.__pos = start_pos
-        self.__minotaurus = minotaurus
-        self.__blue_gem_coords = blue_gem_coords
-        self.__red_gem_coords = red_gem_coords
-        self.__stack = stack
-    
+        super().__init__(*args, **kwargs)
+
     @property
     def maze(self):
         return self.__maze
@@ -49,10 +73,10 @@ class State:
     @pos.setter
     def pos(self, new):
         self.__pos = new
-    
+
     @property
-    def minotaurus(self):
-        return self.__minotaurus
+    def minotauros_coords(self):
+        return self.__minotauros_coords
 
     @property
     def blue_gem_coords(self):
@@ -61,7 +85,7 @@ class State:
     @blue_gem_coords.setter
     def blue_gem_coords(self, new):
         self.__blue_gem_coords = new
-    
+
     @property
     def red_gem_coords(self):
         return self.__red_gem_coords
@@ -69,7 +93,7 @@ class State:
     @red_gem_coords.setter
     def red_gem_coords(self, new):
         self.__red_gem_coords = new
-    
+
     @property
     def stack(self):
         return self.__stack
@@ -78,18 +102,126 @@ class State:
     def stack(self, new):
         self.__stack = new
 
-def move(new):
-    state = State()
-    if new not in state.maze[state.pos]:
+    @property
+    def found(self):
+        return self.__found
+
+    @found.setter
+    def found(self, new):
+        self.__found = new
+
+
+def pos():
+    state = _State()
+    return state.pos
+
+
+def minotauros():
+    state = _State()
+    return state.minotauros_coords
+
+
+def move(new_pos):
+    state = _State()
+    if new_pos not in state.maze[state.pos]:
         print("OUCH!")
-        new = state.pos
-    old = state.pos
-    state.pos = new
-    state.renderer.render(pos, old)
+        new_pos = state.pos
+    old_pos = state.pos
+    state.pos = new_pos
+    state.renderer.update_draw(
+        old_pos, state.pos, state.blue_gem_coords, state.red_gem_coords
+    )
 
 
-if __name__ == "__main__":
-    state = State()
-    print(state.pos)
-    state.pos = (1, 1)
-    print(state.pos)
+def put_blue_gem(cell):
+    state = _State()
+    if cell not in state.blue_gem_coords:
+        new_blue_gem_coords = state.blue_gem_coords
+        new_blue_gem_coords.append(cell)
+        state.blue_gem_coords = new_blue_gem_coords
+
+
+def put_red_gem(cell):
+    state = _State()
+    if cell not in state.red_gem_coords:
+        new_red_gem_coords = state.red_gem_coords
+        new_red_gem_coords.append(cell)
+        state.red_gem_coords = new_red_gem_coords
+
+
+def has_blue_gem(cell):
+    state = _State()
+    return cell in state.blue_gem_coords
+
+
+def has_red_gem(cell):
+    state = _State()
+    return cell in state.red_gem_coords
+
+
+def found_minotaurus():
+    state = _State()
+    state.found = True
+
+
+def was_found():
+    state = _State()
+    return state.found
+
+
+def get_neighbors(pos):
+    state = _State()
+    return state.maze[pos]
+
+
+def push(pos):
+    state = _State()
+    new_stack = state.stack
+    new_stack.append(pos)
+    state.stack = new_stack
+
+
+def pop():
+    state = _State()
+    stack = state.stack
+    popped = stack.pop()
+    state.stack = stack
+    return popped
+
+
+class Solver:
+    """
+    Solver is the interface for students to create and refine the maze. Solver
+    creates the first State instance (and thus the only, since State is a
+    singleton class) and initializes the maze and renderer, but holds no direct
+    reference to the renderer, instead passes it to the state after initialization.
+    """
+
+    def __init__(self, level, rows=10, cols=10):
+        if level == 1:
+            maze = create_corridor(cols)
+            minotaurus_coords = (0, cols - 1)
+        elif level == 2:
+            maze = create_corridor(cols)
+            minotaurus_coords = (0, random.choice(range(1, cols - 1)))
+        elif level == 3:
+            maze, path = create_SAW(rows, cols)
+            minotaurus_coords = path[-1]
+        elif level == 4:
+            maze = create_maze(rows, cols, (0, 0), 0.0)
+            minotaurus_coords = (rows - 4, cols - 4)
+        elif level == 5:
+            maze = create_maze(rows, cols, (0, 0), 0.2)
+            minotaurus_coords = (rows - 4, cols - 4)
+        elif level == 6:
+            maze = create_maze(rows, cols, (0, 0), 0.2)
+            minotaurus_coords = (rows - 4, cols - 4)
+        renderer = Renderer(maze, minotaurus_coords)
+        self._state = _State(
+            maze=maze, renderer=renderer, minotauros_coords=minotaurus_coords
+        )
+        renderer.initial_draw()
+
+    # To be implemented by students
+    def solve():
+        pass

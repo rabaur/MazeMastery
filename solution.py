@@ -69,7 +69,7 @@ def level5():
 
 
 def level6():
-    put_blue_gem(pos)
+    put_blue_gem(pos())
     all_neighbors = get_neighbors(pos())
 
     for neighbor in all_neighbors:
@@ -87,7 +87,7 @@ def level6():
 class MySolver(Solver):
 
     def solve(self):
-        level5()
+        level6()
 
-solver = MySolver(level=5)
+solver = MySolver(level=6)
 solver.solve()

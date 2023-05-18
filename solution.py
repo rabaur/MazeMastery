@@ -3,12 +3,13 @@ from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import create_corridor, create_SAW
 from minosrecurse.renderer import Renderer
 
-LEVEL = 4
-random.seed(6)
+
+LEVEL = int(input("Enter a level: "))
+random.seed(3)
 red_gem_coords = []
 blue_gem_coords = []
 found = False
-rows, cols = 10, 15
+rows, cols = 10, 10
 
 if LEVEL == 1:
     maze = create_corridor(cols)
@@ -162,13 +163,16 @@ def level5():
         if neighbor == minotaurus:
             found_minotaurus()
 
+
 def level6():
     put_blue_gem(pos)
     all_neighbors = get_neighbors(pos)
+
     for neighbor in all_neighbors:
         if not has_blue_gem(neighbor):
             old_pos = pos
             if was_found(): return
+
             move(neighbor)
             if neighbor == minotaurus:
                 found_minotaurus()

@@ -32,17 +32,17 @@ class Renderer:
     def __init__(
         self,
         maze,
-        minotauros_coords,
-        cell_size=100,
+        minotaur_coords,
+        cell_size=50,
         grid_width=None,
         gem_size=None,
-        minotauros_size=None,
+        minotaur_size=None,
         delay=100,
         offset_rows=1,
         offset_cols=1,
     ):
         self._maze = maze
-        self._minotauros_coords = minotauros_coords
+        self._minotaur_coords = minotaur_coords
         self._cell_size = cell_size
         self._grid_width = grid_width if grid_width else cell_size // 20
         self._offset_rows = offset_rows
@@ -53,7 +53,7 @@ class Renderer:
         # Derived sizes
         self._wall_width = self._cell_size // 10
         self._gem_size = gem_size if gem_size else cell_size // 2
-        self._minotauros_size = minotauros_size if minotauros_size else cell_size // 2
+        self._minotaur_size = minotaur_size if minotaur_size else cell_size // 2
         self._gem_third = self._gem_size // 3
         self._gem_sixth = self._gem_size // 6
         self._cell_third = self._cell_size // 3
@@ -75,7 +75,7 @@ class Renderer:
             "has_blue_gem": tk.Button(self._root, font=f"Courier {self._cell_size // 4}", height=1, text="has_blue_gem(pos)"),
             "push": tk.Button(self._root, font=f"Courier {self._cell_size // 4}", height=1, text="push(pos)"),
             "pop": tk.Button(self._root, font=f"Courier {self._cell_size // 4}", height=1, text="pop()"),
-            "found_minotauros": tk.Button(self._root, font=f"Courier {self._cell_size // 4}", height=1, text="found_minotauros()"),
+            "found_minotaur": tk.Button(self._root, font=f"Courier {self._cell_size // 4}", height=1, text="found_minotaur()"),
             "was_found": tk.Button(self._root, font=f"Courier {self._cell_size // 4}", height=1, text="was_found()")
         }
         self._canvas = tk.Canvas(
@@ -102,7 +102,7 @@ class Renderer:
         game.
         """
         self.draw_maze()
-        self.draw_minotaurus()
+        self.draw_minotaur()
 
     
     def update_draw(self, old_pos, curr_pos, blue_gem_coords, red_gem_coords):
@@ -565,12 +565,12 @@ class Renderer:
         for i, j in red_gem_coords:
             self.draw_gem((i, j), self._cell_size // 2, Colors.reds)
 
-    def draw_minotaurus(self):
+    def draw_minotaur(self):
         """
-        Render minotaurus using tkinter.
+        Render minotaur using tkinter.
         """
-        self._canvas.delete("minotaurus")  # delete old minotaurus
-        i, j = self._minotauros_coords
+        self._canvas.delete("minotaur")  # delete old minotaur
+        i, j = self._minotaur_coords
         i += self._offset_rows
         j += self._offset_cols
         # Horns (base)
@@ -580,7 +580,7 @@ class Renderer:
             j * self._cell_size + self._cell_size,
             i * self._cell_size + self._cell_size // 2,
             fill="black",
-            tag="minotaurus",
+            tag="minotaur",
             outline="lightgrey",
         )
 
@@ -591,37 +591,37 @@ class Renderer:
             j * self._cell_size + self._cell_size // 5 * 4,
             i * self._cell_size + self._cell_size // 4,
             fill="lightgrey",
-            tag="minotaurus",
+            tag="minotaur",
             outline="",
         )
 
         # Body
         self._canvas.create_oval(
-            j * self._cell_size + self._cell_size // 2 - self._minotauros_size // 2,
-            i * self._cell_size + self._cell_size // 2 - self._minotauros_size // 2,
-            j * self._cell_size + self._cell_size // 2 + self._minotauros_size // 2,
-            i * self._cell_size + self._cell_size // 2 + self._minotauros_size // 2,
+            j * self._cell_size + self._cell_size // 2 - self._minotaur_size // 2,
+            i * self._cell_size + self._cell_size // 2 - self._minotaur_size // 2,
+            j * self._cell_size + self._cell_size // 2 + self._minotaur_size // 2,
+            i * self._cell_size + self._cell_size // 2 + self._minotaur_size // 2,
             fill="black",
-            tag="minotaurus",
+            tag="minotaur",
         )
 
         # Eyes
         self._canvas.create_oval(
-            j * self._cell_size + self._cell_size // 2 - self._minotauros_size // 3,
-            i * self._cell_size + self._cell_size // 2 - self._minotauros_size // 4,
-            j * self._cell_size + self._cell_size // 2 - self._minotauros_size // 8,
+            j * self._cell_size + self._cell_size // 2 - self._minotaur_size // 3,
+            i * self._cell_size + self._cell_size // 2 - self._minotaur_size // 4,
+            j * self._cell_size + self._cell_size // 2 - self._minotaur_size // 8,
             i * self._cell_size + self._cell_size // 2,
             fill="red",
-            tag="minotaurus",
+            tag="minotaur",
         )
 
         self._canvas.create_oval(
-            j * self._cell_size + self._cell_size // 2 + self._minotauros_size // 8,
-            i * self._cell_size + self._cell_size // 2 - self._minotauros_size // 4,
-            j * self._cell_size + self._cell_size // 2 + self._minotauros_size // 3,
+            j * self._cell_size + self._cell_size // 2 + self._minotaur_size // 8,
+            i * self._cell_size + self._cell_size // 2 - self._minotaur_size // 4,
+            j * self._cell_size + self._cell_size // 2 + self._minotaur_size // 3,
             i * self._cell_size + self._cell_size // 2,
             fill="red",
-            tag="minotaurus",
+            tag="minotaur",
         )
 
     def draw_path_segment(self, source, target):

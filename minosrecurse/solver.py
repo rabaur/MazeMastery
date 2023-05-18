@@ -22,7 +22,7 @@ class _State:
         maze=None,
         renderer=None,
         start_pos=(0, 0),
-        minotauros_coords=(0, 0),
+        minotaur_coords=(0, 0),
         blue_gem_coords=[],
         red_gem_coords=[],
         stack=[],
@@ -36,7 +36,7 @@ class _State:
             cls._self.__maze = maze
             cls._self.__renderer = renderer
             cls._self.__pos = start_pos
-            cls._self.__minotauros_coords = minotauros_coords
+            cls._self.__minotaur_coords = minotaur_coords
             cls._self.__blue_gem_coords = blue_gem_coords
             cls._self.__red_gem_coords = red_gem_coords
             cls._self.__stack = stack
@@ -48,7 +48,7 @@ class _State:
         maze=None,
         renderer=None,
         start_pos=(0, 0),
-        minotauros_coords=(0, 0),
+        minotaur_coords=(0, 0),
         blue_gem_coords=[],
         red_gem_coords=[],
         stack=[],
@@ -75,8 +75,8 @@ class _State:
         self.__pos = new
 
     @property
-    def minotauros_coords(self):
-        return self.__minotauros_coords
+    def minotaur_coords(self):
+        return self.__minotaur_coords
 
     @property
     def blue_gem_coords(self):
@@ -116,9 +116,9 @@ def pos():
     return state.pos
 
 
-def minotauros():
+def minotaur():
     state = _State()
-    return state.minotauros_coords
+    return state.minotaur_coords
 
 
 def move(new_pos):
@@ -159,7 +159,7 @@ def has_red_gem(cell):
     return cell in state.red_gem_coords
 
 
-def found_minotaurus():
+def found_minotaur():
     state = _State()
     state.found = True
 
@@ -200,25 +200,25 @@ class Solver:
     def __init__(self, level, rows=10, cols=10):
         if level == 1:
             maze = create_corridor(cols)
-            minotaurus_coords = (0, cols - 1)
+            minotaur_coords = (0, cols - 1)
         elif level == 2:
             maze = create_corridor(cols)
-            minotaurus_coords = (0, random.choice(range(1, cols - 1)))
+            minotaur_coords = (0, random.choice(range(1, cols - 1)))
         elif level == 3:
             maze, path = create_SAW(rows, cols)
-            minotaurus_coords = path[-1]
+            minotaur_coords = path[-1]
         elif level == 4:
             maze = create_maze(rows, cols, (0, 0), 0.0)
-            minotaurus_coords = (rows - 4, cols - 4)
+            minotaur_coords = (rows - 4, cols - 4)
         elif level == 5:
             maze = create_maze(rows, cols, (0, 0), 0.2)
-            minotaurus_coords = (rows - 4, cols - 4)
+            minotaur_coords = (rows - 4, cols - 4)
         elif level == 6:
             maze = create_maze(rows, cols, (0, 0), 0.2)
-            minotaurus_coords = (rows - 4, cols - 4)
-        renderer = Renderer(maze, minotaurus_coords)
+            minotaur_coords = (rows - 4, cols - 4)
+        renderer = Renderer(maze, minotaur_coords)
         self._state = _State(
-            maze=maze, renderer=renderer, minotauros_coords=minotaurus_coords
+            maze=maze, renderer=renderer, minotaur_coords=minotaur_coords
         )
         renderer.initial_draw()
 

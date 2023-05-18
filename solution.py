@@ -12,8 +12,8 @@ def level2():
         i, j = pos()
         neighbor = (i, j + 1)
         move(neighbor)
-        if neighbor == minotauros():
-            found_minotaurus()
+        if neighbor == minotaur():
+            found_minotaur()
 
 def level3():
     while (not was_found()):
@@ -25,8 +25,8 @@ def level3():
                 neighbors.append(neighbor)
         neighbor = neighbors[0]
         move(neighbor)
-        if neighbor == minotauros():
-            found_minotaurus()
+        if neighbor == minotaur():
+            found_minotaur()
 
 
 def level4():
@@ -45,8 +45,8 @@ def level4():
                     neighbors.append(neighbor)
         neighbor = neighbors[0]
         move(neighbor)
-        if neighbor == minotauros():
-            found_minotaurus()
+        if neighbor == minotaur():
+            found_minotaur()
 
 
 def level5():
@@ -64,8 +64,8 @@ def level5():
             push(pos())
             neighbor = neighbors[0]
         move(neighbor)
-        if neighbor == minotauros():
-            found_minotaurus()
+        if neighbor == minotaur():
+            found_minotaur()
 
 
 def level6():
@@ -78,8 +78,8 @@ def level6():
             if was_found(): return
 
             move(neighbor)
-            if neighbor == minotauros():
-                found_minotaurus()
+            if neighbor == minotaur():
+                found_minotaur()
             level6()
             put_red_gem(pos())
             move(old_pos)

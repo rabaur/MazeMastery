@@ -3,12 +3,12 @@ from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import create_corridor, create_SAW
 from minosrecurse.renderer import Renderer
 
-LEVEL = 3
-random.seed(3)
+LEVEL = 6
+random.seed(6)
 red_gem_coords = []
 blue_gem_coords = []
 found = False
-rows, cols = 15, 10
+rows, cols = 10, 15
 
 if LEVEL == 1:
     maze = create_corridor(cols)
@@ -29,7 +29,7 @@ elif LEVEL == 6:
     maze = create_maze(rows, cols, (0, 0), 0.2)
     minotaurus = (rows - 4, cols - 4)
 
-renderer = Renderer(maze)
+renderer = Renderer(maze, delay=1000)
 
 renderer.draw_maze()
 renderer.draw_minotaurus(minotaurus)
@@ -38,6 +38,7 @@ pos = (0, 0)
 
 def move(new):
     global pos
+
     if new not in maze[pos]:
         print("OUCH!")
         new = pos
@@ -47,6 +48,7 @@ def move(new):
 
 
 def render(pos):
+    renderer.draw_row_col_numbers(pos)
     renderer.draw_gems(blue_gem_coords, red_gem_coords)
     renderer.draw_player(pos)
     renderer.update()
@@ -186,6 +188,3 @@ elif LEVEL == 5:
     level5()
 elif LEVEL == 6:
     level6()
-
-# Run the main loop
-renderer.mainloop()

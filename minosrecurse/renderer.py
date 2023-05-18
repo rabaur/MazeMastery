@@ -1,6 +1,5 @@
 import tkinter as tk
 import random
-from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import get_maze_size
 
 
@@ -67,12 +66,35 @@ class Renderer:
         ]
 
         # Canvas to draw on
-        root = tk.Tk()
-        root.title("Maze")
+        self.root = tk.Tk()
+        self.root.title("Maze")
+        self.menu_buttons = {
+            "put_red_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="put_red_gem(pos)"),
+            "put_blue_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="put_blue_gem(pos)"),
+            "has_red_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="has_red_gem(pos)"),
+            "has_blue_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="has_blue_gem(pos)"),
+            "push": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="push(pos)"),
+            "pop": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="pop()"),
+            "found_minotauros": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="found_minotauros()"),
+            "was_found": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="was_found()")
+        }
         self.canvas = tk.Canvas(
-            root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
+            self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
         )
-        self.canvas.pack()
+        self.canvas.grid(row=0, column=0, rowspan=len(self.menu_buttons.values()))
+        for i, button in enumerate(self.menu_buttons.values()):
+
+            # Configure common attributes
+            button.configure(
+                background=Colors.green_base,
+                activebackground=Colors.green_border,
+                borderwidth=10,
+                relief=tk.RAISED,
+                fg="white",
+            )
+            button.grid(row=i, column=1, sticky=tk.W)
+        self.canvas.configure(bg=Colors.brown_highlight)
+        self.root.configure(bg=Colors.brown_highlight)
 
     def draw_wall(self, start_x, start_y, end_x, end_y, wall_width, wall_color):
         self.canvas.create_line(
@@ -429,7 +451,6 @@ class Renderer:
         """
         Render a maze using tkinter.
         """
-        self.draw_row_col_numbers()
         self.draw_cells(Colors.brown_base)
         self.draw_grid()
 
@@ -595,25 +616,32 @@ class Renderer:
             tag="path",
         )
 
-    def draw_row_col_numbers(self):
+    def draw_row_col_numbers(self, pos, font_size=None):
         """
         Render row and column numbers using tkinter.
         """
+        if font_size is None:
+            font_size = self.cell_size // 4
+        self.canvas.delete("number")  # delete old numbers
         for i in range(self.m):
             self.canvas.create_text(
                 (self.offset_cols - 0.5) * self.cell_size,
                 (i + self.offset_rows + 0.5) * self.cell_size,
                 text=str(i),
-                font="Arial 10",
+                font=f"Arial {self.cell_size // 4} {'bold' if pos[0] == i else ''}",
+                fill=Colors.blues[1] if pos[0] == i else "white",
                 anchor="e",
+                tag="number"
             )
         for j in range(self.n):
             self.canvas.create_text(
                 (j + self.offset_cols + 0.5) * self.cell_size,
-                (self.offset_rows - 0.5) * self.cell_size,
+                (self.offset_rows - 2/3) * self.cell_size,
                 text=str(j),
-                font="Arial 10",
+                font=f"Arial {self.cell_size // 4} {'bold' if pos[1] == j else ''}",
+                fill=Colors.blues[1] if pos[1] == j else "white",
                 anchor="n",
+                tag="number"
             )
 
     def update(self):

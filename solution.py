@@ -3,7 +3,7 @@ from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import create_corridor, create_SAW
 from minosrecurse.renderer import Renderer
 
-LEVEL = 6
+LEVEL = 4
 random.seed(6)
 red_gem_coords = []
 blue_gem_coords = []
@@ -38,16 +38,16 @@ pos = (0, 0)
 
 def move(new):
     global pos
-
     if new not in maze[pos]:
         print("OUCH!")
         new = pos
-    renderer.draw_path_segment(pos, new)
+    old = pos
     pos = new
-    render(pos)
+    render(pos, old)
 
 
-def render(pos):
+def render(pos, old):
+    renderer.draw_path_segment(old, pos)
     renderer.draw_row_col_numbers(pos)
     renderer.draw_gems(blue_gem_coords, red_gem_coords)
     renderer.draw_player(pos)
@@ -132,14 +132,14 @@ def level4():
         for neighbor in all_neighbors:
             if not has_blue_gem(neighbor):
                 neighbors.append(neighbor)
-        if neighbors != []:
-            neighbor = neighbors[0]
-            move(neighbor)
-        else:
+        if neighbors == []:
+            put_red_gem(pos)
+            neighbors = []
             for neighbor in all_neighbors:
                 if not has_red_gem(neighbor):
-                    put_red_gem(pos)
-                    move(neighbor)
+                    neighbors.append(neighbor)
+        neighbor = neighbors[0]
+        move(neighbor)
         if neighbor == minotaurus:
             found_minotaurus()
 
@@ -152,12 +152,12 @@ def level5():
         for neighbor in all_neighbors:
             if not has_blue_gem(neighbor):
                 neighbors.append(neighbor)
-        if neighbors != []:
-            stack.append(pos)
-            neighbor = neighbors[0]
-        else:
+        if neighbors == []:
             put_red_gem(pos)
             neighbor = stack.pop()
+        else:
+            stack.append(pos)
+            neighbor = neighbors[0]
         move(neighbor)
         if neighbor == minotaurus:
             found_minotaurus()

@@ -9,52 +9,42 @@ random.seed(3)
 red_gem_coords = []
 blue_gem_coords = []
 found = False
-rows, cols = 10, 10
+rows, cols = 15, 10
 
 if LEVEL == 1:
-    maze = create_corridor(cols)
+    _maze = create_corridor(cols)
     minotaurus = (0, cols - 1)
 elif LEVEL == 2:
-    maze = create_corridor(cols)
+    _maze = create_corridor(cols)
     minotaurus = (0, random.choice(range(1, cols - 1)))
 elif LEVEL == 3:
-    maze, path = create_SAW(rows, cols)
+    _maze, path = create_SAW(rows, cols)
     minotaurus = path[-1]
 elif LEVEL == 4:
-    maze = create_maze(rows, cols, (0, 0), 0.0)
+    _maze = create_maze(rows, cols, (0, 0), 0.0)
     minotaurus = (rows - 4, cols - 4)
 elif LEVEL == 5:
-    maze = create_maze(rows, cols, (0, 0), 0.2)
+    _maze = create_maze(rows, cols, (0, 0), 0.2)
     minotaurus = (rows - 4, cols - 4)
 elif LEVEL == 6:
-    maze = create_maze(rows, cols, (0, 0), 0.2)
+    _maze = create_maze(rows, cols, (0, 0), 0.2)
     minotaurus = (rows - 4, cols - 4)
 
-renderer = Renderer(maze, delay=1000)
+renderer = Renderer(_maze, delay=1000)
 
 renderer.draw_maze()
-renderer.draw_minotaurus(minotaurus)
+renderer.draw_minotaurus()
 pos = (0, 0)
 
 
 def move(new):
     global pos
-    if new not in maze[pos]:
+    if new not in _maze[pos]:
         print("OUCH!")
         new = pos
     old = pos
     pos = new
-    render(pos, old)
-
-
-def render(pos, old):
-    renderer.draw_path_segment(old, pos)
-    renderer.draw_row_col_numbers(pos)
-    renderer.draw_gems(blue_gem_coords, red_gem_coords)
-    renderer.draw_player(pos)
-    renderer.update()
-    renderer.after()
-
+    renderer.update_draw(old, pos, blue_gem_coords, red_gem_coords)
 
 def put_blue_gem(cell):
     if cell not in blue_gem_coords:
@@ -87,7 +77,7 @@ def get_neighbors(pos):
     """
     For students to implement.
     """
-    return maze[pos]
+    return _maze[pos]
 
 
 stack = []

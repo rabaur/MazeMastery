@@ -57,7 +57,7 @@ class Renderer:
         self.root.title("Maze")
 
         # These buttons are used to modify the maze state in debug mode
-        self.maze_state_mod_buttons = {
+        self.api_buttons = {
             "put_red_gem": tk.Button(self.root, text="put_red_gem(pos)", command=self.handle_put_red_gem_button),
             "put_blue_gem": tk.Button(self.root, text="put_blue_gem(pos)", command=self.handle_put_blue_gem_button),
             "push": tk.Button(self.root, text="push(pos)"),
@@ -65,7 +65,7 @@ class Renderer:
             "found_minotaur": tk.Button(self.root, text="found_minotaur()")
         }
 
-        self.nav_cross_buttons = {
+        self.nav_buttons = {
             "up": tk.Button(self.root, text="↑"),
             "left": tk.Button(self.root, text="←"),
             "right": tk.Button(self.root, text="→"),
@@ -73,14 +73,14 @@ class Renderer:
         }
 
         # These labels are used to display the current state of the maze
-        self.maze_state_display_labels = {
+        self.state_labels = {
             "has_red_gem": tk.Label(self.root, text="has_red_gem(pos)"),
             "has_blue_gem": tk.Label(self.root, text="has_blue_gem(pos)"),
             "was_found": tk.Label(self.root, text="was_found()")
         }
         self.max_button_width = max(
-            [len(button["text"]) for button in self.maze_state_mod_buttons.values()]
-            + [len(label["text"]) for label in self.maze_state_display_labels.values()]
+            [len(button["text"]) for button in self.api_buttons.values()]
+            + [len(label["text"]) for label in self.state_labels.values()]
         )
 
         # Pressing this button transfers the user into debug mode.
@@ -99,31 +99,31 @@ class Renderer:
             self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
         )
 
-        self.canvas.grid(row=0, column=0, rowspan=len(self.maze_state_mod_buttons) + len(self.maze_state_display_labels) + 1 + 2)
+        self.canvas.grid(row=0, column=0, rowspan=len(self.api_buttons) + len(self.state_labels) + 1 + 2)
         row_idx = 1
         self.debug_button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
         row_idx += 1
-        for button in self.maze_state_mod_buttons.values():
+        for button in self.api_buttons.values():
             # Configure common attributes
             button.configure(**Styles.active_button_style(self.cell_size))
             button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
             row_idx += 1
         
         # Styling for the navigation buttons
-        for button in self.nav_cross_buttons.values():
+        for button in self.nav_buttons.values():
             button.configure(**Styles.nav_button_style(self.cell_size))
 
         # Positioning navigation buttons
-        self.nav_cross_buttons["up"].grid(row=row_idx, column=2, sticky="nswe")
+        self.nav_buttons["up"].grid(row=row_idx, column=2, sticky="nswe")
         row_idx += 1
-        self.nav_cross_buttons["left"].grid(row=row_idx, column=1, sticky="nswe")
+        self.nav_buttons["left"].grid(row=row_idx, column=1, sticky="nswe")
         # self.nav_cross_buttons["info"].grid(row=row_idx, column=2)
-        self.nav_cross_buttons["right"].grid(row=row_idx, column=3, sticky="nswe")
+        self.nav_buttons["right"].grid(row=row_idx, column=3, sticky="nswe")
         row_idx += 1
-        self.nav_cross_buttons["down"].grid(row=row_idx, column=2, sticky="nswe")
+        self.nav_buttons["down"].grid(row=row_idx, column=2, sticky="nswe")
         row_idx += 1
 
-        for label in self.maze_state_display_labels.values():
+        for label in self.state_labels.values():
             label.configure(
                 font=f"Courier {self.cell_size // 4}",
                 height=1,
@@ -152,7 +152,7 @@ class Renderer:
             return
         if self.debug:
             self.debug_button.configure(text="Exit Debug Mode")
-            for key, button in self.maze_state_mod_buttons.items():
+            for key, button in {**self.api_buttons, **self.nav_buttons}.items():
 
                 # If there is already a blue gem or a red gem, putting another blue gem is not valid.
                 if key == "put_blue_gem" and (api.has_blue_gem(api.pos()) or api.has_red_gem(api.pos())):
@@ -164,7 +164,7 @@ class Renderer:
                     button.configure(state=tk.NORMAL, relief=tk.RAISED)
         else:
             self.debug_button.configure(text="Debug")
-            for key, button in self.maze_state_mod_buttons.items():
+            for key, button in {**self.api_buttons, **self.nav_buttons}.items():
                 button.configure(state=tk.DISABLED, relief=tk.FLAT)
 
     def handle_put_red_gem_button(self):

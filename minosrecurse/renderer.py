@@ -3,6 +3,7 @@ import random
 from minosrecurse.maze_utils import get_maze_size
 import minosrecurse.api as api
 from minosrecurse.styles import Colors, Styles
+from minosrecurse.debug_menu import DebugMenu
 
 class Renderer:
     def __init__(
@@ -55,121 +56,21 @@ class Renderer:
         self.root = tk.Tk()
         self.root.title("Maze")
 
-        # These buttons are used to modify the maze state in debug mode
-        self.api_buttons = {
-            "put_red_gem": tk.Button(self.root, text="put_red_gem(pos)", command=self.handle_put_red_gem_button),
-            "put_blue_gem": tk.Button(self.root, text="put_blue_gem(pos)", command=self.handle_put_blue_gem_button),
-            "push": tk.Button(self.root, text="push(pos)"),
-            "pop": tk.Button(self.root, text="pop()"),
-            "found_minotaur": tk.Button(self.root, text="found_minotaur()")
-        }
-
-        # These buttons are used to navigate the maze in debug mode
-        self.nav_buttons = {
-            "up": tk.Button(self.root, text="↑"),
-            "left": tk.Button(self.root, text="←"),
-            "right": tk.Button(self.root, text="→"),
-            "down": tk.Button(self.root, text="↓"),
-            "info": tk.Button(self.root, text="move", state=tk.DISABLED)
-        }
-
-        # These labels are used to display the current state of the maze
-        self.state_labels = {
-            "has_red_gem": tk.Label(self.root, text="has_red_gem(pos)"),
-            "has_blue_gem": tk.Label(self.root, text="has_blue_gem(pos)"),
-            "was_found": tk.Label(self.root, text="was_found()")
-        }
-        self.max_button_width = max(
-            [len(button["text"]) for button in self.api_buttons.values()]
-            + [len(label["text"]) for label in self.state_labels.values()]
-        )
-
-        # Pressing this button transfers the user into debug mode.
-        self.debug_button = tk.Button(self.root, text="Debug", command=self.handle_debug_button)
-        self.debug_button.configure(**Styles.debug_button_style(self.cell_size))
-
         self.canvas = tk.Canvas(
             self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
         )
 
-        self.canvas.grid(row=0, column=0, rowspan=len(self.api_buttons) + len(self.state_labels) + 1 + 2)
-        row_idx = 1
-        self.debug_button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
-        row_idx += 1
-        for button in self.api_buttons.values():
-            # Configure common attributes
-            button.configure(**Styles.active_button_style(self.cell_size))
-            button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
-            row_idx += 1
-        
-        # Styling for the navigation buttons
-        for button in self.nav_buttons.values():
-            button.configure(**Styles.nav_button_style(self.cell_size))
-
-        # Positioning navigation buttons
-        self.nav_buttons["up"].grid(row=row_idx, column=2, sticky="nswe")
-        row_idx += 1
-        self.nav_buttons["left"].grid(row=row_idx, column=1, sticky="nswe")
-        self.nav_buttons["info"].grid(row=row_idx, column=2, sticky="nswe")
-        self.nav_buttons["right"].grid(row=row_idx, column=3, sticky="nswe")
-        row_idx += 1
-        self.nav_buttons["down"].grid(row=row_idx, column=2, sticky="nswe")
-        row_idx += 1
-
-        for label in self.state_labels.values():
-            label.configure(**Styles.label_style(self.cell_size))
-            label.grid(row=row_idx, column=1, columnspan=3, sticky=tk.W)
-            row_idx += 1
+        self.debug_menu = DebugMenu(self)
+        self.canvas.grid(row=0, column=0, rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + 1 + 2)
         self.canvas.configure(bg=Colors.brown_highlight)
         self.root.configure(bg=Colors.brown_highlight)
-
-    def handle_debug_button(self):
-        self.debug = not self.debug
-        self.update_menu()
-
-    def update_menu(self):
-        """
-        Beware - this can only be called after initialization of the renderer
-        due to an ugly circular dependency between the renderer and the api.
-        TODO: Fix this.
-        """
-        if not self:
-            return
-        if self.debug:
-            self.debug_button.configure(text="Exit Debug Mode")
-            for key, button in {**self.api_buttons, **self.nav_buttons}.items():
-
-                # If there is already a blue gem or a red gem, putting another blue gem is not valid.
-                if key == "put_blue_gem" and (api.has_blue_gem(api.pos()) or api.has_red_gem(api.pos())):
-                    print("disabling put_blue_gem(pos) since there is already a blue gem or a red gem at pos")
-                    button.configure(state=tk.DISABLED, relief=tk.FLAT)
-                elif key == "put_red_gem" and (api.has_red_gem(api.pos())):
-                    button.configure(state=tk.DISABLED, relief=tk.FLAT)
-                elif key == "info":
-                    button.configure(state=tk.NORMAL, relief=tk.FLAT)
-                else:
-                    button.configure(state=tk.NORMAL, relief=tk.RAISED)
-        else:
-            self.debug_button.configure(text="Debug")
-            for key, button in {**self.api_buttons, **self.nav_buttons}.items():
-                button.configure(state=tk.DISABLED, relief=tk.FLAT)
-
-    def handle_put_red_gem_button(self):
-        api.put_red_gem(api.pos())
-        self.draw_gems()
-        self.update_menu()
-    
-    def handle_put_blue_gem_button(self):
-        api.put_blue_gem(api.pos())
-        self.draw_gems()
-        self.update_menu()
 
     def initial_draw(self):
         """
         Draws components of the maze that will remain unchanged throughout the
         game.
         """
-        self.update_menu()
+        self.debug_menu.update_menu()
         self.draw_maze()
         self.draw_minotaur()
         self.draw_initial_row_col_numbers()

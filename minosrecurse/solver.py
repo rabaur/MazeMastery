@@ -3,6 +3,7 @@ from minosrecurse.maze_utils import create_corridor, create_SAW
 from minosrecurse.renderer import Renderer
 import threading
 import random
+import time
 
 
 class _State:
@@ -128,22 +129,22 @@ def move(new_pos):
     old_pos = state.pos
     state.pos = new_pos
     state.renderer.update_draw(old_pos, state.pos, list(state.blue_gem_coords), list(state.red_gem_coords))
+    print(threading.current_thread())
+    time.sleep(0.5)
 
 
 def put_blue_gem(cell):
     state = _State()
     if cell not in state.blue_gem_coords:
-        new_blue_gem_coords = state.blue_gem_coords
-        new_blue_gem_coords.append(cell)
-        state.blue_gem_coords = new_blue_gem_coords
+        state.renderer.push_blue_gem_buffer(cell)
+        state.blue_gem_coords.append(cell)
 
 
 def put_red_gem(cell):
     state = _State()
     if cell not in state.red_gem_coords:
-        new_red_gem_coords = state.red_gem_coords
-        new_red_gem_coords.append(cell)
-        state.red_gem_coords = new_red_gem_coords
+        state.renderer.push_red_gem_buffer(cell)
+        state.red_gem_coords.append(cell)
 
 
 def has_blue_gem(cell):
@@ -224,6 +225,7 @@ class Solver:
         pass
 
     def run(self):
-        solution_thread = threading.Thread(target=self.solve)
+        print(threading.current_thread())
+        solution_thread = threading.Thread(target=self.solve, name="solution_thread")
         solution_thread.start()
         self.renderer._root.mainloop()

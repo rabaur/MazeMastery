@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 from minosrecurse.maze_utils import get_maze_size
+import threading
 
 
 class Colors:
@@ -65,6 +66,11 @@ class Renderer:
             (self._m + self._offset_rows) * self._cell_size,
         ]
 
+        # Buffers tracking changes of state, such that we do not need to redraw
+        # all items on every update_draw call.
+        self._blue_gem_buffer = set()
+        self._red_gem_buffer = set()
+
         # Canvas to draw on
         self._root = tk.Tk()
         self._root.title("Maze")
@@ -105,17 +111,19 @@ class Renderer:
         self.draw_minotaur()
 
     
-    def update_draw(self, old_pos, curr_pos, blue_gem_coords, red_gem_coords):
+    def update_draw(self, old_pos, curr_pos):
         """
         Draws components of the maze that will change throughout the game.
-        Should be called after every move.
+        Should be called after every move. Will clear buffers.
         """
+        print(threading.current_thread())
         self.draw_path_segment(old_pos, curr_pos)
         self.draw_row_col_numbers(curr_pos)
-        self.draw_gems(blue_gem_coords, red_gem_coords)
+        self.draw_gems(self._blue_gem_buffer, self._red_gem_buffer)
         self.draw_player(curr_pos)
         self._canvas.update()
-        # self._canvas.after(self._delay)
+        self._red_gem_buffer = set()
+        self._blue_gem_buffer = set()
 
     
     def draw_wall(self, start_x, start_y, end_x, end_y, wall_width, wall_color):
@@ -666,8 +674,8 @@ class Renderer:
                 tag="number"
             )
     
-    def mainloop(self):
-        """
-        Start the tkinter mainloop.
-        """
-        self._canvas.mainloop()
+    def push_blue_gem_buffer(self, pos):
+        self._blue_gem_buffer.add(pos)
+    
+    def push_red_gem_buffer(self, pos):
+        self._red_gem_buffer.add(pos)

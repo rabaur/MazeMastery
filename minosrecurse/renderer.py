@@ -3,32 +3,7 @@ from tkinter import ttk
 import random
 from minosrecurse.maze_utils import get_maze_size
 import minosrecurse.api as api
-
-class Colors:
-    green_base = "#4b9a49"
-    green_border = "#316e30"
-    grass_base = "#64b663"
-    grass_top = "#a6d5a5"
-    brown_base = "#8c7748"
-    brown_highlight = "#b8a375"
-    brown_border = "#65512f"
-    blues = {
-        0: "#0069aa",
-        1: "#0098dc",
-        2: "#00cdf9",
-        3: "#94fdff",
-        4: "#ffffff",
-        "main": "#0cf1ff",
-    }
-    reds = {
-        0: "#9d2231",
-        1: "#e12937",
-        2: "#ff5858",
-        3: "#ff9ba2",
-        4: "#ffffff",
-        "main": "#ff616b",
-    }
-
+from minosrecurse.styles import Colors, Styles
 
 class Renderer:
     def __init__(
@@ -124,47 +99,19 @@ class Renderer:
             self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
         )
 
-        # This should probably be handled with ttk, but this gives me more fine-grained control
-        self.active_button_style = {
-            "font": f"Courier {self.cell_size // 4}",
-            "height": 1,
-            "background": Colors.green_base,
-            "activebackground": Colors.green_border,
-            "foreground": "white",
-            "activeforeground": "white",
-            "borderwidth": 10,
-            "justify": tk.LEFT,
-            "anchor": tk.W,
-            "relief": tk.RAISED,
-            "padx": 5,
-            "pady": 5,
-        }
-
-        # Navigation button style
-        self.nav_button_style = {
-            "font": f"Courier {self.cell_size // 4}",
-            "height": 1,
-            "background": Colors.green_base,
-            "activebackground": Colors.green_border,
-            "foreground": "white",
-            "activeforeground": "white",
-            "borderwidth": 10,
-            "relief": tk.RAISED,
-        }
-
         self.canvas.grid(row=0, column=0, rowspan=len(self.maze_state_mod_buttons) + len(self.maze_state_display_labels) + 1 + 2)
         row_idx = 1
         self.debug_button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
         row_idx += 1
         for button in self.maze_state_mod_buttons.values():
             # Configure common attributes
-            button.configure(**self.active_button_style)
+            button.configure(**Styles.active_button_style(self.cell_size))
             button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
             row_idx += 1
         
         # Styling for the navigation buttons
         for button in self.nav_cross_buttons.values():
-            button.configure(**self.nav_button_style)
+            button.configure(**Styles.nav_button_style(self.cell_size))
 
         # Positioning navigation buttons
         self.nav_cross_buttons["up"].grid(row=row_idx, column=2, sticky="nswe")

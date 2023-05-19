@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
 from minosrecurse.maze_utils import get_maze_size
-
+import minosrecurse.api as api
 
 class Colors:
     green_base = "#4b9a49"
@@ -91,56 +91,25 @@ class Renderer:
 
         # These buttons are used to modify the maze state in debug mode
         self.maze_state_mod_buttons = {
-            "put_red_gem": tk.Button(
-                self.root,
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                text="put_red_gem(pos)",
-                command=self.handle_put_red_gem_button,
-            ),
-            "put_blue_gem": tk.Button(
-                self.root,
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                text="put_blue_gem(pos)",
-            ),
-            "push": tk.Button(
-                self.root,
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                text="push(pos)",
-            ),
-            "pop": tk.Button(
-                self.root, font=f"Courier {self.cell_size // 4}", height=1, text="pop()"
-            ),
-            "found_minotaur": tk.Button(
-                self.root,
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                text="found_minotaur()",
-            ),
+            "put_red_gem": tk.Button(self.root, text="put_red_gem(pos)", command=self.handle_put_red_gem_button,),
+            "put_blue_gem": tk.Button(self.root, text="put_blue_gem(pos)", command=self.handle_put_blue_gem_button,),
+            "push": tk.Button(self.root, text="push(pos)"),
+            "pop": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="pop()"),
+            "found_minotaur": tk.Button(self.root, text="found_minotaur()")
+        }
+
+        self.nav_cross_buttons = {
+            "up": tk.Button(self.root, text="↑"),
+            "left": tk.Button(self.root, text="←"),
+            "right": tk.Button(self.root, text="→"),
+            "down": tk.Button(self.root, text="↓"),
         }
 
         # These labels are used to display the current state of the maze
         self.maze_state_display_labels = {
-            "has_red_gem": tk.Label(
-                self.root,
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                text="has_red_gem(pos)",
-            ),
-            "has_blue_gem": tk.Label(
-                self.root,
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                text="has_blue_gem(pos)",
-            ),
-            "was_found": tk.Label(
-                self.root,
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                text="was_found()",
-            ),
+            "has_red_gem": tk.Label(self.root, text="has_red_gem(pos)"),
+            "has_blue_gem": tk.Label(self.root, text="has_blue_gem(pos)"),
+            "was_found": tk.Label(self.root, text="was_found()")
         }
         self.max_button_width = max(
             [len(button["text"]) for button in self.maze_state_mod_buttons.values()]
@@ -150,20 +119,15 @@ class Renderer:
             self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
         )
 
-        self.canvas.grid(
-            row=0,
-            column=0,
-            rowspan=len(self.maze_state_mod_buttons)
-            + len(self.maze_state_display_labels)
-            + 1
-            + 2,
-        )
+        self.canvas.grid(row=0, column=0, rowspan=len(self.maze_state_mod_buttons) + len(self.maze_state_display_labels) + 1 + 2)
         row_idx = 1
         self.debug_button.grid(row=row_idx, column=1)
         row_idx += 1
         for button in self.maze_state_mod_buttons.values():
             # Configure common attributes
             button.configure(
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
                 background=Colors.green_base,
                 activebackground=Colors.green_border,
                 borderwidth=10,
@@ -172,20 +136,30 @@ class Renderer:
                 anchor=tk.W,
                 fg="white",
             )
-            button.grid(row=row_idx, column=1, sticky=tk.W)
+            button.grid(row=row_idx, column=1, columnspan=3, sticky=tk.W)
             row_idx += 1
+        
+        self.nav_cross_buttons["up"].grid(row=row_idx, column=2)
+        row_idx += 1
+        self.nav_cross_buttons["left"].grid(row=row_idx, column=1)
+        self.nav_cross_buttons["info"].grid(row=row_idx, column=2)
+        self.nav_cross_buttons["right"].grid(row=row_idx, column=3)
+        row_idx += 1
+        self.nav_cross_buttons["down"].grid(row=row_idx, column=2)
+        row_idx += 1
 
         for label in self.maze_state_display_labels.values():
             label.configure(
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
                 background=Colors.brown_highlight,
                 fg=Colors.brown_border,
                 width=self.max_button_width,
                 justify=tk.LEFT,
                 anchor=tk.W,
             )
-            label.grid(row=row_idx, column=1, sticky=tk.W)
+            label.grid(row=row_idx, column=1, columnspan=2, sticky=tk.W)
             row_idx += 1
-        self.update_menu()
         self.canvas.configure(bg=Colors.brown_highlight)
         self.root.configure(bg=Colors.brown_highlight)
 
@@ -194,24 +168,46 @@ class Renderer:
         self.update_menu()
 
     def update_menu(self):
+        """
+        Beware - this can only be called after initialization of the renderer
+        due to an ugly circular dependency between the renderer and the api.
+        TODO: Fix this.
+        """
+        if not self:
+            return
         if self.debug:
             self.debug_button.configure(text="Exit Debug Mode")
-            for button in self.maze_state_mod_buttons.values():
-                button.configure(state=tk.NORMAL, relief=tk.RAISED)
+            for key, button in self.maze_state_mod_buttons.items():
+
+                # If there is already a blue gem or a red gem, putting another blue gem is not valid.
+                if key == "put_blue_gem" and (api.has_blue_gem(api.pos()) or api.has_red_gem(api.pos())):
+                    print("disabling put_blue_gem(pos) since there is already a blue gem or a red gem at pos")
+                    button.configure(state=tk.DISABLED, relief=tk.FLAT)
+                elif key == "put_red_gem" and (api.has_red_gem(api.pos())):
+                    button.configure(state=tk.DISABLED, relief=tk.FLAT)
+                else:
+                    button.configure(state=tk.NORMAL, relief=tk.RAISED)
         else:
             self.debug_button.configure(text="Debug")
-            for button in self.maze_state_mod_buttons.values():
+            for key, button in self.maze_state_mod_buttons.items():
                 button.configure(state=tk.DISABLED, relief=tk.FLAT)
 
     def handle_put_red_gem_button(self):
-        put_red_gem(pos())
-        self.update_draw()
+        api.put_red_gem(api.pos())
+        self.draw_gems()
+        self.update_menu()
+    
+    def handle_put_blue_gem_button(self):
+        api.put_blue_gem(api.pos())
+        self.draw_gems()
+        self.update_menu()
 
     def initial_draw(self):
         """
         Draws components of the maze that will remain unchanged throughout the
         game.
         """
+        self.update_menu()
         self.draw_maze()
         self.draw_minotaur()
         self.draw_initial_row_col_numbers()
@@ -223,7 +219,7 @@ class Renderer:
         """
         self.draw_path_segment(old_pos, curr_pos)
         self.draw_row_col_numbers(old_pos, curr_pos)
-        self.draw_gems(self.blue_gem_buffer, self.red_gem_buffer)
+        self.draw_gems()
         self.draw_player(curr_pos)
         self.canvas.update()
         self.red_gem_buffer = set()
@@ -686,15 +682,14 @@ class Renderer:
                 for _ in range(pebble_count):
                     self.draw_pebble((off_i, off_j))
 
-    def draw_gems(self, blue_gem_coords, red_gem_coords):
+    def draw_gems(self):
         """
         Render gems using tkinter.
         """
-        self.canvas.delete("gem")  # delete old gems
-        for i, j in blue_gem_coords:
+        for i, j in self.blue_gem_buffer:
             self.draw_gem((i, j), self.cell_size // 2, Colors.blues)
 
-        for i, j in red_gem_coords:
+        for i, j in self.red_gem_buffer:
             self.draw_gem((i, j), self.cell_size // 2, Colors.reds)
 
     def draw_minotaur(self):

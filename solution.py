@@ -1,4 +1,5 @@
 from minosrecurse.api import *
+from minosrecurse.solver import Solver
 
 def level1():
     while (not was_found()):

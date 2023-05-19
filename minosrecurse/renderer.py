@@ -516,8 +516,8 @@ class Renderer:
         y = random.randint(i * self._cell_size, (i + 1) * self._cell_size)
 
         # Draw pebble.
-        max_size = min(self._cell_size // 8, 15)
-        min_size = 3
+        max_size = self._cell_size // 8
+        min_size = self._cell_size // 16
         size = random.randint(min_size, max_size)
 
         # Base
@@ -535,8 +535,8 @@ class Renderer:
         self._canvas.create_rectangle(
             x + 2,
             y + 2,
-            x + size - 2,
-            y + size // 2,
+            x + size // 3 * 2,
+            y + size // 3 * 2,
             fill=Colors.brown_highlight,
             outline="",
             tag="cell",

@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import random
 from minosrecurse.maze_utils import get_maze_size
 import minosrecurse.api as api
@@ -80,21 +81,12 @@ class Renderer:
         self.root = tk.Tk()
         self.root.title("Maze")
 
-        # Pressing this button transfers the user into debug mode.
-        self.debug_button = tk.Button(
-            self.root,
-            font=f"Arial {self.cell_size // 4}",
-            height=1,
-            text="Debug",
-            command=self.handle_debug_button,
-        )
-
         # These buttons are used to modify the maze state in debug mode
         self.maze_state_mod_buttons = {
-            "put_red_gem": tk.Button(self.root, text="put_red_gem(pos)", command=self.handle_put_red_gem_button,),
-            "put_blue_gem": tk.Button(self.root, text="put_blue_gem(pos)", command=self.handle_put_blue_gem_button,),
+            "put_red_gem": tk.Button(self.root, text="put_red_gem(pos)", command=self.handle_put_red_gem_button),
+            "put_blue_gem": tk.Button(self.root, text="put_blue_gem(pos)", command=self.handle_put_blue_gem_button),
             "push": tk.Button(self.root, text="push(pos)"),
-            "pop": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="pop()"),
+            "pop": tk.Button(self.root, text="pop()"),
             "found_minotaur": tk.Button(self.root, text="found_minotaur()")
         }
 
@@ -115,9 +107,37 @@ class Renderer:
             [len(button["text"]) for button in self.maze_state_mod_buttons.values()]
             + [len(label["text"]) for label in self.maze_state_display_labels.values()]
         )
+
+        # Pressing this button transfers the user into debug mode.
+        self.debug_button = tk.Button(
+            self.root,
+            font=f"Arial {self.cell_size // 4}",
+            height=1,
+            text="Debug",
+            borderwidth=10,
+            anchor=tk.CENTER,
+            width=self.max_button_width,
+            command=self.handle_debug_button,
+        )
+
         self.canvas = tk.Canvas(
             self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
         )
+
+        # This should probably be handled with ttk, but this gives me more fine-grained control
+        self.active_button_style = {
+            "font": f"Courier {self.cell_size // 4}",
+            "height": 1,
+            "background": Colors.green_base,
+            "activebackground": Colors.green_border,
+            "foreground": "white",
+            "activeforeground": "white",
+            "width": self.max_button_width,
+            "borderwidth": 10,
+            "justify": tk.LEFT,
+            "anchor": tk.W,
+            "relief": tk.RAISED,
+        }
 
         self.canvas.grid(row=0, column=0, rowspan=len(self.maze_state_mod_buttons) + len(self.maze_state_display_labels) + 1 + 2)
         row_idx = 1
@@ -125,24 +145,14 @@ class Renderer:
         row_idx += 1
         for button in self.maze_state_mod_buttons.values():
             # Configure common attributes
-            button.configure(
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                background=Colors.green_base,
-                activebackground=Colors.green_border,
-                borderwidth=10,
-                width=self.max_button_width,
-                justify=tk.LEFT,
-                anchor=tk.W,
-                fg="white",
-            )
+            button.configure(**self.active_button_style)
             button.grid(row=row_idx, column=1, columnspan=3, sticky=tk.W)
             row_idx += 1
         
         self.nav_cross_buttons["up"].grid(row=row_idx, column=2)
         row_idx += 1
         self.nav_cross_buttons["left"].grid(row=row_idx, column=1)
-        self.nav_cross_buttons["info"].grid(row=row_idx, column=2)
+        # self.nav_cross_buttons["info"].grid(row=row_idx, column=2)
         self.nav_cross_buttons["right"].grid(row=row_idx, column=3)
         row_idx += 1
         self.nav_cross_buttons["down"].grid(row=row_idx, column=2)

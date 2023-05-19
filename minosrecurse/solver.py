@@ -129,7 +129,7 @@ def move(new_pos):
     old_pos = state.pos
     state.pos = new_pos
     state.renderer.update_draw(old_pos, state.pos)
-    time.sleep(state.renderer._delay / 1000)
+    time.sleep(state.renderer.delay / 1000)
 
 
 def put_blue_gem(cell):
@@ -224,7 +224,6 @@ class Solver:
         pass
 
     def run(self):
-        print(threading.current_thread())
         solution_thread = threading.Thread(target=self.solve, name="solution_thread")
         solution_thread.start()
-        self._renderer._root.mainloop()
+        self._renderer.root.mainloop()

@@ -41,6 +41,7 @@ class Renderer:
         delay=100,
         offset_rows=1,
         offset_cols=1,
+        initial_pos=(0, 0)
     ):
         self._maze = maze
         self._minotaur_coords = minotaur_coords
@@ -70,6 +71,7 @@ class Renderer:
         # all items on every update_draw call.
         self._blue_gem_buffer = set()
         self._red_gem_buffer = set()
+        self._initial_pos = initial_pos
 
         # Canvas to draw on
         self._root = tk.Tk()
@@ -109,6 +111,7 @@ class Renderer:
         """
         self.draw_maze()
         self.draw_minotaur()
+        self.draw_initial_row_col_numbers()
 
     
     def update_draw(self, old_pos, curr_pos):
@@ -116,9 +119,8 @@ class Renderer:
         Draws components of the maze that will change throughout the game.
         Should be called after every move. Will clear buffers.
         """
-        print(threading.current_thread())
         self.draw_path_segment(old_pos, curr_pos)
-        self.draw_row_col_numbers(curr_pos)
+        self.draw_row_col_numbers(old_pos, curr_pos)
         self.draw_gems(self._blue_gem_buffer, self._red_gem_buffer)
         self.draw_player(curr_pos)
         self._canvas.update()
@@ -645,33 +647,82 @@ class Renderer:
             width=5,
             tag="path",
         )
-
-    def draw_row_col_numbers(self, pos, font_size=None):
+    
+    def draw_initial_row_col_numbers(self, font_size=None):
         """
-        Render row and column numbers using tkinter.
+        Render initial row and column numbers using tkinter.
         """
         if font_size is None:
             font_size = self._cell_size // 4
-        self._canvas.delete("number")  # delete old numbers
         for i in range(self._m):
             self._canvas.create_text(
                 (self._offset_cols - 0.5) * self._cell_size,
                 (i + self._offset_rows + 0.5) * self._cell_size,
                 text=str(i),
-                font=f"Arial {self._cell_size // 4} {'bold' if pos[0] == i else ''}",
-                fill=Colors.blues[1] if pos[0] == i else "white",
+                font=f"Arial {font_size} {'bold' if self._initial_pos[0] == i else ''}",
+                fill=Colors.blues[1] if self._initial_pos[0] == i else "white",
                 anchor="e",
-                tag="number"
+                tag=f"row_number_{i}",
             )
         for j in range(self._n):
             self._canvas.create_text(
                 (j + self._offset_cols + 0.5) * self._cell_size,
                 (self._offset_rows - 2/3) * self._cell_size,
                 text=str(j),
-                font=f"Arial {self._cell_size // 4} {'bold' if pos[1] == j else ''}",
-                fill=Colors.blues[1] if pos[1] == j else "white",
+                font=f"Arial {font_size} {'bold' if self._initial_pos[1] == j else ''}",
+                fill=Colors.blues[1] if self._initial_pos[1] == j else "white",
                 anchor="n",
-                tag="number"
+                tag=f"col_number_{j}",
+            )
+
+    def draw_row_col_numbers(self, old_pos, pos, font_size=None):
+        """
+        Render row and column numbers using tkinter.
+        """
+        if font_size is None:
+            font_size = self._cell_size // 4
+        self._canvas.delete("number")  # delete old numbers
+        if old_pos[0] != pos[0]: # row number changed, update required
+            self._canvas.delete(f"row_number_{old_pos[0]}")
+            self._canvas.delete(f"row_number_{pos[0]}")
+            self._canvas.create_text(
+                (self._offset_cols - 0.5) * self._cell_size,
+                (old_pos[0] + self._offset_rows + 0.5) * self._cell_size,
+                text=str(old_pos[0]),
+                font=f"Arial {font_size}",
+                fill="white",
+                anchor="e",
+                tag=f"row_number_{old_pos[0]}"
+            )
+            self._canvas.create_text(
+                (self._offset_cols - 0.5) * self._cell_size,
+                (pos[0] + self._offset_rows + 0.5) * self._cell_size,
+                text=str(pos[0]),
+                font=f"Arial {font_size} bold",
+                fill=Colors.blues[1],
+                anchor="e",
+                tag=f"row_number_{pos[0]}"
+            )
+        if old_pos[1] != pos[1]: # col number changed, update required
+            self._canvas.delete(f"col_number_{old_pos[1]}")
+            self._canvas.delete(f"col_number_{pos[1]}")
+            self._canvas.create_text(
+                (old_pos[1] + self._offset_cols + 0.5) * self._cell_size,
+                (self._offset_rows - 2/3) * self._cell_size,
+                text=str(old_pos[1]),
+                font=f"Arial {font_size}",
+                fill="white",
+                anchor="n",
+                tag=f"col_number_{old_pos[1]}"
+            )
+            self._canvas.create_text(
+                (pos[1] + self._offset_cols + 0.5) * self._cell_size,
+                (self._offset_rows - 2/3) * self._cell_size,
+                text=str(pos[1]),
+                font=f"Arial {font_size} bold",
+                fill=Colors.blues[1],
+                anchor="n",
+                tag=f"col_number_{pos[1]}"
             )
     
     def push_blue_gem_buffer(self, pos):

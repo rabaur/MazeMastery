@@ -128,9 +128,9 @@ def move(new_pos):
     
     old_pos = state.pos
     state.pos = new_pos
-    state.renderer.update_draw(old_pos, state.pos, list(state.blue_gem_coords), list(state.red_gem_coords))
+    state.renderer.update_draw(old_pos, state.pos)
     print(threading.current_thread())
-    time.sleep(0.5)
+    time.sleep(state.renderer._delay / 1000)
 
 
 def put_blue_gem(cell):
@@ -195,7 +195,7 @@ class Solver:
     reference to the renderer, instead passes it to the state after initialization.
     """
 
-    def __init__(self, level, rows=10, cols=10):
+    def __init__(self, level, rows=10, cols=10, cell_size=50):
         if level == 1:
             maze = create_corridor(cols)
             minotaur_coords = (0, cols - 1)
@@ -214,7 +214,7 @@ class Solver:
         elif level == 6:
             maze = create_maze(rows, cols, (0, 0), 0.2)
             minotaur_coords = (rows - 4, cols - 4)
-        renderer = Renderer(maze, minotaur_coords)
+        renderer = Renderer(maze, minotaur_coords, cell_size=cell_size)
         self._state = _State(
             maze=maze, renderer=renderer, minotaur_coords=minotaur_coords
         )

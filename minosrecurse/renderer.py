@@ -1,24 +1,41 @@
 import tkinter as tk
 import random
+import math
 from minosrecurse.maze_utils import get_maze_size
-import minosrecurse.api as api
-from minosrecurse.styles import Colors, Styles
+from minosrecurse.styles import Colors
 from minosrecurse.debug_menu import DebugMenu
+from typing import List, Tuple, Dict
 
-class Renderer:
+class GUI:
     def __init__(
         self,
-        maze,
-        minotaur_coords,
-        cell_size=50,
-        grid_width=None,
-        gem_size=None,
-        minotaur_size=None,
-        delay=100,
-        offset_rows=1,
-        offset_cols=1,
-        initial_pos=(0, 0),
+        maze: Dict[Tuple[int, int], List[Tuple[int, int]]],
+        minotaur_coords: Tuple[int, int],
+        cell_size: int = 50,
+        grid_width: int = None,
+        gem_size: int = None,
+        minotaur_size: int = None,
+        delay: int = 100,
+        offset_rows: int = 2,
+        offset_cols: int = 1,
+        initial_pos: Tuple[int, int] = (0, 0),
     ):
+        """
+        A class for rendering a maze.
+
+        Args:
+            maze: Graph representing the maze.
+            minotaur_coords: Coordinates of the minotaur.
+            cell_size: Size cell-side in pixels.
+            grid_width: Width of the grid lines in pixels.
+            gem_size: Size of the gems in pixels.
+            minotaur_size: Size of the minotaur in pixels.
+            delay: Delay between frames in milliseconds.
+            offset_rows: Number of rows to offset the maze by to add space on
+                top of the maze.
+            offset_cols: Number of columns to offset the maze by to add space
+                on the left of the maze.
+        """
         self.maze = maze
         self.minotaur_coords = minotaur_coords
         self.cell_size = cell_size
@@ -57,11 +74,13 @@ class Renderer:
         self.root.title("Maze")
 
         self.canvas = tk.Canvas(
-            self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
+            self.root,
+            width=(self.n + self.offset_cols + 1) * cell_size,
+            height=(self.m + self.offset_rows + 1) * cell_size
         )
 
         self.debug_menu = DebugMenu(self)
-        self.canvas.grid(row=0, column=0, rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + 1 + 2)
+        self.canvas.grid(row=0, column=0, rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
         self.canvas.configure(bg=Colors.brown_highlight)
         self.root.configure(bg=Colors.brown_highlight)
 
@@ -72,6 +91,7 @@ class Renderer:
         """
         self.debug_menu.update_menu()
         self.draw_maze()
+        self.draw_hearts(10)
         self.draw_minotaur()
         self.draw_initial_row_col_numbers()
 
@@ -207,7 +227,9 @@ class Renderer:
                     )
 
     def draw_grid(self):
-        for i in range(self.m + self.offset_rows):
+
+        # Horizontal lines
+        for i in range(self.offset_rows, self.m + self.offset_rows):
             self.canvas.create_line(
                 self.offset_cols + self.cell_size,
                 i * self.cell_size,
@@ -217,10 +239,12 @@ class Renderer:
                 fill=Colors.brown_border,
                 tag="grid",
             )
+        
+        # Vertical lines
         for j in range(self.n + self.offset_cols):
             self.canvas.create_line(
                 j * self.cell_size,
-                self.offset_rows + self.cell_size,
+                self.offset_rows * self.cell_size,
                 j * self.cell_size,
                 (self.m + self.offset_rows) * self.cell_size,
                 width=self.grid_width,
@@ -705,6 +729,96 @@ class Renderer:
                 anchor="n",
                 tag=f"col_number_{pos[1]}",
             )
+    
+    def draw_hearts(self, n=5, border_width=None):
+        """
+        Draws n hearts on the top right corner of the canvas.
+        """
+        if border_width is None:
+            border_width = self.cell_size // 20
+        for i in range(n):
+
+            # Draw an outer heart a bit larger than the inner one
+            self.draw_heart(
+                self.offset_cols * i * self.cell_size + self.cell_size // 2,
+                self.cell_size // 2,
+                self.cell_size // 4,
+                color=Colors.reds[0]
+            )
+
+            # Draw an inner heart
+            self.draw_heart(
+                self.offset_cols * i * self.cell_size + self.cell_size // 2,
+                self.cell_size // 2 - border_width,
+                self.cell_size // 4 - border_width,
+                color=Colors.reds[1],
+                highlight=True,
+                highlight_color=Colors.reds[3]
+            )
+
+
+    def draw_heart(
+        self, 
+        x, 
+        y, 
+        size, 
+        highlight=False, 
+        highlight_color="white", 
+        color="red"
+    ):
+        """
+        Draws a heart (vertical) whose tip is at (x, y). Size is the side
+        length of the square that forms the bottom of the heart.
+        """
+
+        # Tip
+        cat = size / math.sqrt(2)
+        self.canvas.create_polygon(
+            x, y,
+            x - cat, y - cat,
+            x, y - 2 * cat,
+            x + cat, y - cat,
+            fill=color,
+            tag="heart",
+            outline=""
+        )
+
+        # Right part
+        r = size / 2
+        cx = x + cat / 2
+        cy = y - 3 / 2 * cat
+        self.canvas.create_oval(
+            cx - r, cy - r,
+            cx + r, cy + r,
+            fill=color,
+            tag="heart",
+            outline=""            
+        )
+
+        # Left part
+        cx = x - cat / 2
+        cy = y - 3 / 2 * cat
+        self.canvas.create_oval(
+            cx - r, cy - r,
+            cx + r, cy + r,
+            fill=color,
+            tag="heart",
+            outline=""
+        )
+
+        # Highlight
+        if not highlight:
+            return
+        
+        self.canvas.create_oval(
+            cx - r / 2, cy - r / 2,
+            cx + r / 2, cy + r / 2,
+            fill=highlight_color,
+            tag="heart",
+            outline=""
+        )
+
+
 
     def push_blue_gem_buffer(self, pos):
         self.blue_gem_buffer.add(pos)

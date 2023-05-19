@@ -1,6 +1,6 @@
 from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import create_corridor, create_SAW
-from minosrecurse.renderer import Renderer
+from minosrecurse.renderer import GUI
 from minosrecurse.state import State
 import threading
 import random
@@ -32,7 +32,7 @@ class Solver:
         elif level == 6:
             maze = create_maze(rows, cols, (0, 0), 0.2)
             minotaur_coords = (rows - 4, cols - 4)
-        self._renderer = Renderer(maze, minotaur_coords, cell_size=cell_size)
+        self._renderer = GUI(maze, minotaur_coords, cell_size=cell_size)
         self._state = State(
             maze=maze, renderer=self._renderer, minotaur_coords=minotaur_coords
         )

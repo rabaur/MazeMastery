@@ -22,6 +22,7 @@ class State:
         red_gem_coords=[],
         stack=[],
         found=False,
+        lives=5,
         *args,
         **kwargs
     ):
@@ -35,6 +36,7 @@ class State:
             cls._self.__red_gem_coords = red_gem_coords
             cls._self.__stack = stack
             cls._self.__found = found
+            cls._self.__lives = lives
         return cls._self
 
     def __init__(
@@ -47,6 +49,7 @@ class State:
         red_gem_coords=[],
         stack=[],
         found=False,
+        lives=5,
         *args,
         **kwargs
     ):
@@ -103,3 +106,11 @@ class State:
     @found.setter
     def found(self, new):
         self.__found = new
+    
+    @property
+    def lives(self):
+        return self.__lives
+
+    @lives.setter
+    def lives(self, new):
+        self.__lives = new

@@ -129,7 +129,6 @@ def move(new_pos):
     old_pos = state.pos
     state.pos = new_pos
     state.renderer.update_draw(old_pos, state.pos)
-    print(threading.current_thread())
     time.sleep(state.renderer._delay / 1000)
 
 
@@ -214,11 +213,11 @@ class Solver:
         elif level == 6:
             maze = create_maze(rows, cols, (0, 0), 0.2)
             minotaur_coords = (rows - 4, cols - 4)
-        renderer = Renderer(maze, minotaur_coords, cell_size=cell_size)
+        self._renderer = Renderer(maze, minotaur_coords, cell_size=cell_size)
         self._state = _State(
-            maze=maze, renderer=renderer, minotaur_coords=minotaur_coords
+            maze=maze, renderer=self._renderer, minotaur_coords=minotaur_coords
         )
-        self.renderer.initial_draw()
+        self._renderer.initial_draw()
 
     # To be implemented by students
     def solve():
@@ -228,4 +227,4 @@ class Solver:
         print(threading.current_thread())
         solution_thread = threading.Thread(target=self.solve, name="solution_thread")
         solution_thread.start()
-        self.renderer._root.mainloop()
+        self._renderer._root.mainloop()

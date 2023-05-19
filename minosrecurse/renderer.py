@@ -132,30 +132,48 @@ class Renderer:
             "activebackground": Colors.green_border,
             "foreground": "white",
             "activeforeground": "white",
-            "width": self.max_button_width,
             "borderwidth": 10,
             "justify": tk.LEFT,
             "anchor": tk.W,
+            "relief": tk.RAISED,
+            "padx": 5,
+            "pady": 5,
+        }
+
+        # Navigation button style
+        self.nav_button_style = {
+            "font": f"Courier {self.cell_size // 4}",
+            "height": 1,
+            "background": Colors.green_base,
+            "activebackground": Colors.green_border,
+            "foreground": "white",
+            "activeforeground": "white",
+            "borderwidth": 10,
             "relief": tk.RAISED,
         }
 
         self.canvas.grid(row=0, column=0, rowspan=len(self.maze_state_mod_buttons) + len(self.maze_state_display_labels) + 1 + 2)
         row_idx = 1
-        self.debug_button.grid(row=row_idx, column=1)
+        self.debug_button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
         row_idx += 1
         for button in self.maze_state_mod_buttons.values():
             # Configure common attributes
             button.configure(**self.active_button_style)
-            button.grid(row=row_idx, column=1, columnspan=3, sticky=tk.W)
+            button.grid(row=row_idx, column=1, columnspan=3, sticky="nswe", padx=5, pady=5)
             row_idx += 1
         
-        self.nav_cross_buttons["up"].grid(row=row_idx, column=2)
+        # Styling for the navigation buttons
+        for button in self.nav_cross_buttons.values():
+            button.configure(**self.nav_button_style)
+
+        # Positioning navigation buttons
+        self.nav_cross_buttons["up"].grid(row=row_idx, column=2, sticky="nswe")
         row_idx += 1
-        self.nav_cross_buttons["left"].grid(row=row_idx, column=1)
+        self.nav_cross_buttons["left"].grid(row=row_idx, column=1, sticky="nswe")
         # self.nav_cross_buttons["info"].grid(row=row_idx, column=2)
-        self.nav_cross_buttons["right"].grid(row=row_idx, column=3)
+        self.nav_cross_buttons["right"].grid(row=row_idx, column=3, sticky="nswe")
         row_idx += 1
-        self.nav_cross_buttons["down"].grid(row=row_idx, column=2)
+        self.nav_cross_buttons["down"].grid(row=row_idx, column=2, sticky="nswe")
         row_idx += 1
 
         for label in self.maze_state_display_labels.values():
@@ -168,7 +186,7 @@ class Renderer:
                 justify=tk.LEFT,
                 anchor=tk.W,
             )
-            label.grid(row=row_idx, column=1, columnspan=2, sticky=tk.W)
+            label.grid(row=row_idx, column=1, columnspan=3, sticky=tk.W)
             row_idx += 1
         self.canvas.configure(bg=Colors.brown_highlight)
         self.root.configure(bg=Colors.brown_highlight)

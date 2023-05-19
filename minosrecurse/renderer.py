@@ -1,7 +1,6 @@
 import tkinter as tk
 import random
 from minosrecurse.maze_utils import get_maze_size
-import threading
 
 
 class Colors:
@@ -29,6 +28,7 @@ class Colors:
         "main": "#ff616b",
     }
 
+
 class Renderer:
     def __init__(
         self,
@@ -41,7 +41,7 @@ class Renderer:
         delay=100,
         offset_rows=1,
         offset_cols=1,
-        initial_pos=(0, 0)
+        initial_pos=(0, 0),
     ):
         self.maze = maze
         self.minotaur_coords = minotaur_coords
@@ -79,39 +79,133 @@ class Renderer:
         # Canvas to draw on
         self.root = tk.Tk()
         self.root.title("Maze")
-        self.debug_button = tk.Button(self.root, font=f"Arial {self.cell_size // 4}", height=1, text="Debug")
+
+        # Pressing this button transfers the user into debug mode.
+        self.debug_button = tk.Button(
+            self.root,
+            font=f"Arial {self.cell_size // 4}",
+            height=1,
+            text="Debug",
+            command=self.handle_debug_button,
+        )
+
+        # These buttons are used to modify the maze state in debug mode
         self.maze_state_mod_buttons = {
-            "put_red_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="put_red_gem(pos)"),
-            "put_blue_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="put_blue_gem(pos)"),
-            "has_red_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="has_red_gem(pos)"),
-            "has_blue_gem": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="has_blue_gem(pos)"),
-            "push": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="push(pos)"),
-            "pop": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="pop()"),
-            "found_minotaur": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="found_minotaur()"),
-            "was_found": tk.Button(self.root, font=f"Courier {self.cell_size // 4}", height=1, text="was_found()")
+            "put_red_gem": tk.Button(
+                self.root,
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
+                text="put_red_gem(pos)",
+                command=self.handle_put_red_gem_button,
+            ),
+            "put_blue_gem": tk.Button(
+                self.root,
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
+                text="put_blue_gem(pos)",
+            ),
+            "push": tk.Button(
+                self.root,
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
+                text="push(pos)",
+            ),
+            "pop": tk.Button(
+                self.root, font=f"Courier {self.cell_size // 4}", height=1, text="pop()"
+            ),
+            "found_minotaur": tk.Button(
+                self.root,
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
+                text="found_minotaur()",
+            ),
         }
+
+        # These labels are used to display the current state of the maze
+        self.maze_state_display_labels = {
+            "has_red_gem": tk.Label(
+                self.root,
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
+                text="has_red_gem(pos)",
+            ),
+            "has_blue_gem": tk.Label(
+                self.root,
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
+                text="has_blue_gem(pos)",
+            ),
+            "was_found": tk.Label(
+                self.root,
+                font=f"Courier {self.cell_size // 4}",
+                height=1,
+                text="was_found()",
+            ),
+        }
+        self.max_button_width = max(
+            [len(button["text"]) for button in self.maze_state_mod_buttons.values()]
+            + [len(label["text"]) for label in self.maze_state_display_labels.values()]
+        )
         self.canvas = tk.Canvas(
             self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
         )
-        self.canvas.grid(row=0, column=0, rowspan=len(self.maze_state_mod_buttons.values()))
-        self.debug_button.grid(row=0, column=1)
-        for i, button in enumerate(self.maze_state_mod_buttons.values()):
 
+        self.canvas.grid(
+            row=0,
+            column=0,
+            rowspan=len(self.maze_state_mod_buttons)
+            + len(self.maze_state_display_labels)
+            + 1
+            + 2,
+        )
+        row_idx = 1
+        self.debug_button.grid(row=row_idx, column=1)
+        row_idx += 1
+        for button in self.maze_state_mod_buttons.values():
             # Configure common attributes
             button.configure(
                 background=Colors.green_base,
                 activebackground=Colors.green_border,
                 borderwidth=10,
-                relief=tk.RAISED,
+                width=self.max_button_width,
+                justify=tk.LEFT,
+                anchor=tk.W,
                 fg="white",
             )
-            button.grid(row=i + 1, column=1, sticky=tk.W)
+            button.grid(row=row_idx, column=1, sticky=tk.W)
+            row_idx += 1
+
+        for label in self.maze_state_display_labels.values():
+            label.configure(
+                background=Colors.brown_highlight,
+                fg=Colors.brown_border,
+                width=self.max_button_width,
+                justify=tk.LEFT,
+                anchor=tk.W,
+            )
+            label.grid(row=row_idx, column=1, sticky=tk.W)
+            row_idx += 1
+        self.update_menu()
         self.canvas.configure(bg=Colors.brown_highlight)
         self.root.configure(bg=Colors.brown_highlight)
-    
-    def render_menu(self):
-        if self._debug:
-            self.debug_button.configure(background=Colors.green_base)
+
+    def handle_debug_button(self):
+        self.debug = not self.debug
+        self.update_menu()
+
+    def update_menu(self):
+        if self.debug:
+            self.debug_button.configure(text="Exit Debug Mode")
+            for button in self.maze_state_mod_buttons.values():
+                button.configure(state=tk.NORMAL, relief=tk.RAISED)
+        else:
+            self.debug_button.configure(text="Debug")
+            for button in self.maze_state_mod_buttons.values():
+                button.configure(state=tk.DISABLED, relief=tk.FLAT)
+
+    def handle_put_red_gem_button(self):
+        put_red_gem(pos())
+        self.update_draw()
 
     def initial_draw(self):
         """
@@ -122,7 +216,6 @@ class Renderer:
         self.draw_minotaur()
         self.draw_initial_row_col_numbers()
 
-    
     def update_draw(self, old_pos, curr_pos):
         """
         Draws components of the maze that will change throughout the game.
@@ -136,7 +229,6 @@ class Renderer:
         self.red_gem_buffer = set()
         self.blue_gem_buffer = set()
 
-    
     def draw_wall(self, start_x, start_y, end_x, end_y, wall_width, wall_color):
         self.canvas.create_line(
             start_x,
@@ -190,14 +282,13 @@ class Renderer:
                         wall_width=wall_width,
                         wall_color=wall_color,
                     )
-    
+
     def draw_wall_shadows(self):
         for i in range(self.m):
             for j in range(self.n):
                 off_i = i + self.offset_rows
                 off_j = j + self.offset_cols
                 if not (i - 1, j) in self.maze[(i, j)]:  # Horizontal shadow
-
                     # If there is a wall to the left, we need to adjust
                     # the shadow to the left because of the thickness of the
                     # wall
@@ -205,24 +296,30 @@ class Renderer:
                         left_x = off_j * self.cell_size
                     else:
                         left_x = off_j * self.cell_size - 2 * self.wall_width
-                    
+
                     # If there is a wall to the right, we need to clip the shadow to avoid bleeding beyong the wall
                     if (i, j + 1) not in self.maze[(i, j)]:
                         right_x = (off_j + 1) * self.cell_size
                     else:
                         right_x = (off_j + 1) * self.cell_size + self.shadow_offset
                     self.canvas.create_polygon(
-                        left_x, off_i * self.cell_size,
-                        (off_j + 1) * self.cell_size, off_i * self.cell_size - 2 * self.wall_width,  # compensating for wall-width
-                        right_x, off_i * self.cell_size,
-                        right_x, off_i * self.cell_size + self.shadow_offset,
-                        left_x + self.shadow_offset, off_i * self.cell_size + self.shadow_offset,
+                        left_x,
+                        off_i * self.cell_size,
+                        (off_j + 1) * self.cell_size,
+                        off_i * self.cell_size
+                        - 2 * self.wall_width,  # compensating for wall-width
+                        right_x,
+                        off_i * self.cell_size,
+                        right_x,
+                        off_i * self.cell_size + self.shadow_offset,
+                        left_x + self.shadow_offset,
+                        off_i * self.cell_size + self.shadow_offset,
                         fill=Colors.brown_border,
-                        tag="shadow"
+                        tag="shadow",
                     )
-                    
+
                 if not (i, j - 1) in self.maze[(i, j)]:  # Vertical shadow
-                    # If there is no wall to the top, we need to adjust the 
+                    # If there is no wall to the top, we need to adjust the
                     # shadow to the top because of the tickness of the wall
                     if (i - 1, j) not in self.maze[(i, j)]:
                         top_y = off_i * self.cell_size
@@ -236,15 +333,19 @@ class Renderer:
                     else:
                         bottom_y = (off_i + 1) * self.cell_size + self.shadow_offset
                     self.canvas.create_polygon(
-                        off_j * self.cell_size, top_y,
-                        off_j * self.cell_size + self.shadow_offset, top_y + self.shadow_offset,
-                        off_j * self.cell_size + self.shadow_offset, bottom_y,
-                        off_j * self.cell_size, bottom_y,
-                        off_j * self.cell_size - 2 * self.wall_width, (off_i + 1) * self.cell_size,
+                        off_j * self.cell_size,
+                        top_y,
+                        off_j * self.cell_size + self.shadow_offset,
+                        top_y + self.shadow_offset,
+                        off_j * self.cell_size + self.shadow_offset,
+                        bottom_y,
+                        off_j * self.cell_size,
+                        bottom_y,
+                        off_j * self.cell_size - 2 * self.wall_width,
+                        (off_i + 1) * self.cell_size,
                         fill=Colors.brown_border,
-                        tag="shadow"
+                        tag="shadow",
                     )
-
 
     def draw_grid(self):
         for i in range(self.m + self.offset_rows):
@@ -267,7 +368,7 @@ class Renderer:
                 fill=Colors.brown_border,
                 tag="grid",
             )
-    
+
     def draw_gem(self, pos, gem_size, color):
         """
         Draws a fancy gem at in the cell (i, j).
@@ -277,130 +378,128 @@ class Renderer:
         offset = (self.cell_size - gem_size) // 2
         base_x = (j + self.offset_cols) * self.cell_size + offset
         base_y = (i + self.offset_rows) * self.cell_size + offset
-        xs = [base_x + i * self.gem_third for i in range(4)]
-        ys = list(reversed([base_y + i * self.gem_third for i in range(4)]))
+        x = [base_x + i * self.gem_third for i in range(4)]
+        y = list(reversed([base_y + i * self.gem_third for i in range(4)]))
 
         # Shadow
         self.canvas.create_oval(
-            xs[0] + self.gem_sixth, ys[1],
-            xs[3] + self.gem_sixth, ys[0] + self.gem_sixth,
+            x[0] + self.gem_sixth,
+            y[1],
+            x[3] + self.gem_sixth,
+            y[0] + self.gem_sixth,
             fill=Colors.brown_border,
-            outline=""
+            outline="",
         )
 
         # Full gem
         self.canvas.create_polygon(
-            xs[0], ys[1],
-            xs[0], ys[2],
-            xs[1], ys[3],
-            xs[2], ys[3],
-            xs[3], ys[2],
-            xs[3], ys[1],
-            xs[2], ys[0],
-            xs[1], ys[0],
+            x[0], y[1],
+            x[0], y[2],
+            x[1], y[3],
+            x[2], y[3],
+            x[3], y[2],
+            x[3], y[1],
+            x[2], y[0],
+            x[1], y[0],
             fill=color[0],
-            width=2
+            width=2,
         )
 
         # Middle
         self.canvas.create_polygon(
-            xs[1], ys[1],
-            xs[1], ys[2],
-            xs[2], ys[2],
-            xs[2], ys[1],
+            x[1], y[1],
+            x[1], y[2],
+            x[2], y[2],
+            x[2], y[1],
             fill=color["main"],
             outline=color[1],
-            width=2
+            width=2,
         )
 
         # Shine
         self.canvas.create_polygon(
-            xs[1], ys[1],
-            xs[1], ys[1] - self.gem_sixth,
-            xs[1] + self.gem_sixth, ys[2],
-            xs[2], ys[2],
+            x[1], y[1],
+            x[1], y[1] - self.gem_sixth,
+            x[1] + self.gem_sixth, y[2],
+            x[2], y[2],
             fill=color[3],
-            outline=""
+            outline="",
         )
 
         # Color 1
         self.canvas.create_polygon(
-            xs[2], ys[0],
-            xs[1], ys[0],
-            xs[1], ys[1],
-            xs[2], ys[1],
+            x[2], y[0],
+            x[1], y[0],
+            x[1], y[1],
+            x[2], y[1],
             fill=color[1],
             outline=color[0],
-            width=2
+            width=2,
         )
         self.canvas.create_polygon(
-            xs[2], ys[1],
-            xs[2], ys[2],
-            xs[3], ys[2],
-            xs[3], ys[1],
+            x[2], y[1],
+            x[2], y[2],
+            x[3], y[2],
+            x[3], y[1],
             fill=color[1],
             outline=color[0],
-            width=2
+            width=2,
         )
 
         # Color 2
         self.canvas.create_polygon(
-            xs[1], ys[0],
-            xs[0], ys[1],
-            xs[1], ys[1],
-            fill=color[2],
-            outline=color[1]
+            x[1], y[0], x[0], y[1], x[1], y[1], fill=color[2], outline=color[1]
         )
         self.canvas.create_polygon(
-            xs[2], ys[2],
-            xs[2], ys[3],
-            xs[3], ys[2],
+            x[2], y[2],
+            x[2], y[3],
+            x[3], y[2],
             fill=color[2],
             outline=color[1],
-            width=2
+            width=2,
         )
-        
+
         # Color 3
         self.canvas.create_polygon(
-            xs[1], ys[1],
-            xs[0], ys[1],
-            xs[0], ys[2],
-            xs[1], ys[2],
+            x[1], y[1],
+            x[0], y[1],
+            x[0], y[2],
+            x[1], y[2],
             fill=color[3],
             outline=color[1],
-            width=2
+            width=2,
         )
 
         # Color 4
         self.canvas.create_polygon(
-            xs[1], ys[1],
-            xs[0], ys[1],
-            xs[0], ys[2],
-            xs[1], ys[2],
+            x[1], y[1],
+            x[0], y[1],
+            x[0], y[2],
+            x[1], y[2],
             fill=color[3],
             outline=color[1],
-            width=2
+            width=2,
         )
         self.canvas.create_polygon(
-            xs[1], ys[2],
-            xs[1], ys[3],
-            xs[2], ys[3],
-            xs[2], ys[2],
+            x[1], y[2],
+            x[1], y[3],
+            x[2], y[3],
+            x[2], y[2],
             fill=color[3],
             outline=color[0],
-            width=2
+            width=2,
         )
 
         # Color 5
         self.canvas.create_polygon(
-            xs[1], ys[2],
-            xs[0], ys[2],
-            xs[1], ys[3],
+            x[1], y[2],
+            x[0], y[2],
+            x[1], y[3],
             fill=color[4],
             outline=color[1],
-            width=2
+            width=2,
         )
-    
+
     def draw_grass_blades(self, pos, num_grass=3, num_blades=4, blade_width=4):
         """
         Draws some weeds at a random position in the cell (i, j).
@@ -414,21 +513,37 @@ class Renderer:
         # Generate positions before drawing to potentially change drawing order
         base_positions = []
         for _ in range(num_grass):
-            x = (j + self.offset_cols) * self.cell_size + random.randint(0, self.cell_size - num_blades * 2 * blade_width)
-            y = (k + self.offset_rows) * self.cell_size + random.randint(0, self.cell_size)
+            x = (j + self.offset_cols) * self.cell_size + random.randint(
+                0, self.cell_size - num_blades * 2 * blade_width
+            )
+            y = (k + self.offset_rows) * self.cell_size + random.randint(
+                0, self.cell_size
+            )
             base_positions.append((x, y))
-        
+
         # Order positions lexicographically by x, then y
         base_positions.sort(key=lambda pos: (pos[0], pos[1]))
-        
-        for (x, y) in base_positions:
+
+        for x, y in base_positions:
             for k in range(num_blades):
                 blade_height = random.randint(min_height, max_height)
                 blade_x = x + k * 2 * blade_width
-                
+
                 # Shadow
-                shadow_offset_x = min(blade_x + self.shadow_offset * blade_height / max_height, self.maze_extents[2]) - blade_x
-                shadow_offset_y = min(y + self.shadow_offset * blade_height / max_height, self.maze_extents[3]) - y
+                shadow_offset_x = (
+                    min(
+                        blade_x + self.shadow_offset * blade_height / max_height,
+                        self.maze_extents[2],
+                    )
+                    - blade_x
+                )
+                shadow_offset_y = (
+                    min(
+                        y + self.shadow_offset * blade_height / max_height,
+                        self.maze_extents[3],
+                    )
+                    - y
+                )
                 shadow_offset = min(shadow_offset_x, shadow_offset_y)
                 self.canvas.create_line(
                     blade_x,
@@ -438,9 +553,9 @@ class Renderer:
                     y + shadow_offset,
                     width=blade_width,
                     fill=Colors.green_border,
-                    tag="grass_blade"
+                    tag="grass_blade",
                 )
-                
+
                 self.canvas.create_rectangle(
                     blade_x,
                     y,
@@ -462,10 +577,9 @@ class Renderer:
                     tag="grass_blade",
                 )
 
-    
     def draw_grass(self):
         """
-        Instead of rendering empty cells with four walls in case a cell is not 
+        Instead of rendering empty cells with four walls in case a cell is not
         connnected to the maze, we render it as a path of grass.
         """
         for i in range(self.m):
@@ -486,7 +600,7 @@ class Renderer:
         for i in range(self.m):
             for j in range(self.n):
                 if self.maze[(i, j)] == []:
-                        self.draw_grass_blades((i, j))
+                    self.draw_grass_blades((i, j))
 
     def draw_maze(self):
         """
@@ -518,7 +632,7 @@ class Renderer:
             fill="green",
             tag="player",
         )
-    
+
     def draw_pebble(self, pos):
         i, j = pos
         x = random.randint(j * self.cell_size, (j + 1) * self.cell_size)
@@ -550,7 +664,6 @@ class Renderer:
             outline="",
             tag="cell",
         )
-        
 
     def draw_cells(self, cell_color, pebble_count=10):
         """
@@ -580,7 +693,7 @@ class Renderer:
         self.canvas.delete("gem")  # delete old gems
         for i, j in blue_gem_coords:
             self.draw_gem((i, j), self.cell_size // 2, Colors.blues)
-    
+
         for i, j in red_gem_coords:
             self.draw_gem((i, j), self.cell_size // 2, Colors.reds)
 
@@ -656,7 +769,7 @@ class Renderer:
             width=5,
             tag="path",
         )
-    
+
     def draw_initial_row_col_numbers(self, font_size=None):
         """
         Render initial row and column numbers using tkinter.
@@ -676,7 +789,7 @@ class Renderer:
         for j in range(self.n):
             self.canvas.create_text(
                 (j + self.offset_cols + 0.5) * self.cell_size,
-                (self.offset_rows - 2/3) * self.cell_size,
+                (self.offset_rows - 2 / 3) * self.cell_size,
                 text=str(j),
                 font=f"Arial {font_size} {'bold' if self.initial_pos[1] == j else ''}",
                 fill=Colors.blues[1] if self.initial_pos[1] == j else "white",
@@ -691,7 +804,7 @@ class Renderer:
         if font_size is None:
             font_size = self.cell_size // 4
         self.canvas.delete("number")  # delete old numbers
-        if old_pos[0] != pos[0]: # row number changed, update required
+        if old_pos[0] != pos[0]:  # row number changed, update required
             self.canvas.delete(f"row_number_{old_pos[0]}")
             self.canvas.delete(f"row_number_{pos[0]}")
             self.canvas.create_text(
@@ -701,7 +814,7 @@ class Renderer:
                 font=f"Arial {font_size}",
                 fill="white",
                 anchor="e",
-                tag=f"row_number_{old_pos[0]}"
+                tag=f"row_number_{old_pos[0]}",
             )
             self.canvas.create_text(
                 (self.offset_cols - 0.5) * self.cell_size,
@@ -710,32 +823,32 @@ class Renderer:
                 font=f"Arial {font_size} bold",
                 fill=Colors.blues[1],
                 anchor="e",
-                tag=f"row_number_{pos[0]}"
+                tag=f"row_number_{pos[0]}",
             )
-        if old_pos[1] != pos[1]: # col number changed, update required
+        if old_pos[1] != pos[1]:  # col number changed, update required
             self.canvas.delete(f"col_number_{old_pos[1]}")
             self.canvas.delete(f"col_number_{pos[1]}")
             self.canvas.create_text(
                 (old_pos[1] + self.offset_cols + 0.5) * self.cell_size,
-                (self.offset_rows - 2/3) * self.cell_size,
+                (self.offset_rows - 2 / 3) * self.cell_size,
                 text=str(old_pos[1]),
                 font=f"Arial {font_size}",
                 fill="white",
                 anchor="n",
-                tag=f"col_number_{old_pos[1]}"
+                tag=f"col_number_{old_pos[1]}",
             )
             self.canvas.create_text(
                 (pos[1] + self.offset_cols + 0.5) * self.cell_size,
-                (self.offset_rows - 2/3) * self.cell_size,
+                (self.offset_rows - 2 / 3) * self.cell_size,
                 text=str(pos[1]),
                 font=f"Arial {font_size} bold",
                 fill=Colors.blues[1],
                 anchor="n",
-                tag=f"col_number_{pos[1]}"
+                tag=f"col_number_{pos[1]}",
             )
-    
+
     def push_blue_gem_buffer(self, pos):
         self.blue_gem_buffer.add(pos)
-    
+
     def push_red_gem_buffer(self, pos):
         self.red_gem_buffer.add(pos)

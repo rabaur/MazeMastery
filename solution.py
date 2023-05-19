@@ -1,4 +1,4 @@
-from minosrecurse.solver import *
+from minosrecurse.api import *
 
 def level1():
     while (not was_found()):
@@ -27,7 +27,6 @@ def level3():
         move(neighbor)
         if neighbor == minotaur():
             found_minotaur()
-
 
 def level4():
     while (not was_found()):

@@ -28,7 +28,6 @@ class Colors:
 
 
 class Styles:
-
     @staticmethod
     def active_button_style(cell_size):
         return {
@@ -57,4 +56,24 @@ class Styles:
             "activeforeground": "white",
             "borderwidth": 10,
             "relief": tk.RAISED,
+        }
+
+    @staticmethod
+    def label_style(cell_size):
+        return {
+            "font": f"Courier {cell_size // 4}",
+            "height": 1,
+            "background": Colors.brown_highlight,
+            "fg": Colors.brown_border,
+            "justify": tk.LEFT,
+            "anchor": tk.W,
+        }
+
+    @staticmethod
+    def debug_button_style(cell_size):
+        return {
+            "font": f"Arial {cell_size // 4}",
+            "height": 1,
+            "borderwidth": 10,
+            "anchor": tk.CENTER,
         }

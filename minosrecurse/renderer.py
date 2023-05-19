@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 import random
 from minosrecurse.maze_utils import get_maze_size
 import minosrecurse.api as api
@@ -65,11 +64,13 @@ class Renderer:
             "found_minotaur": tk.Button(self.root, text="found_minotaur()")
         }
 
+        # These buttons are used to navigate the maze in debug mode
         self.nav_buttons = {
             "up": tk.Button(self.root, text="↑"),
             "left": tk.Button(self.root, text="←"),
             "right": tk.Button(self.root, text="→"),
             "down": tk.Button(self.root, text="↓"),
+            "info": tk.Button(self.root, text="move", state=tk.DISABLED)
         }
 
         # These labels are used to display the current state of the maze
@@ -84,16 +85,8 @@ class Renderer:
         )
 
         # Pressing this button transfers the user into debug mode.
-        self.debug_button = tk.Button(
-            self.root,
-            font=f"Arial {self.cell_size // 4}",
-            height=1,
-            text="Debug",
-            borderwidth=10,
-            anchor=tk.CENTER,
-            width=self.max_button_width,
-            command=self.handle_debug_button,
-        )
+        self.debug_button = tk.Button(self.root, text="Debug", command=self.handle_debug_button)
+        self.debug_button.configure(**Styles.debug_button_style(self.cell_size))
 
         self.canvas = tk.Canvas(
             self.root, width=(self.n + 2) * cell_size, height=(self.m + 2) * cell_size
@@ -117,22 +110,14 @@ class Renderer:
         self.nav_buttons["up"].grid(row=row_idx, column=2, sticky="nswe")
         row_idx += 1
         self.nav_buttons["left"].grid(row=row_idx, column=1, sticky="nswe")
-        # self.nav_cross_buttons["info"].grid(row=row_idx, column=2)
+        self.nav_buttons["info"].grid(row=row_idx, column=2, sticky="nswe")
         self.nav_buttons["right"].grid(row=row_idx, column=3, sticky="nswe")
         row_idx += 1
         self.nav_buttons["down"].grid(row=row_idx, column=2, sticky="nswe")
         row_idx += 1
 
         for label in self.state_labels.values():
-            label.configure(
-                font=f"Courier {self.cell_size // 4}",
-                height=1,
-                background=Colors.brown_highlight,
-                fg=Colors.brown_border,
-                width=self.max_button_width,
-                justify=tk.LEFT,
-                anchor=tk.W,
-            )
+            label.configure(**Styles.label_style(self.cell_size))
             label.grid(row=row_idx, column=1, columnspan=3, sticky=tk.W)
             row_idx += 1
         self.canvas.configure(bg=Colors.brown_highlight)
@@ -160,6 +145,8 @@ class Renderer:
                     button.configure(state=tk.DISABLED, relief=tk.FLAT)
                 elif key == "put_red_gem" and (api.has_red_gem(api.pos())):
                     button.configure(state=tk.DISABLED, relief=tk.FLAT)
+                elif key == "info":
+                    button.configure(state=tk.NORMAL, relief=tk.FLAT)
                 else:
                     button.configure(state=tk.NORMAL, relief=tk.RAISED)
         else:
@@ -671,10 +658,11 @@ class Renderer:
         """
         Render minotaur using tkinter.
         """
-        self.canvas.delete("minotaur")  # delete old minotaur
+        self.canvas.delete("minotaur")
         i, j = self.minotaur_coords
         i += self.offset_rows
         j += self.offset_cols
+        
         # Horns (base)
         self.canvas.create_oval(
             j * self.cell_size,

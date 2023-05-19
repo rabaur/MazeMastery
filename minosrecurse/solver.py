@@ -1,6 +1,7 @@
 from minosrecurse.maze import create_maze
 from minosrecurse.maze_utils import create_corridor, create_SAW
 from minosrecurse.renderer import Renderer
+import threading
 import random
 
 
@@ -31,7 +32,6 @@ class _State:
         **kwargs
     ):
         if cls._self is None:
-            print("Creating state")
             cls._self = super(_State, cls).__new__(cls, *args, **kwargs)
             cls._self.__maze = maze
             cls._self.__renderer = renderer
@@ -110,7 +110,6 @@ class _State:
     def found(self, new):
         self.__found = new
 
-
 def pos():
     state = _State()
     return state.pos
@@ -120,17 +119,15 @@ def minotaur():
     state = _State()
     return state.minotaur_coords
 
-
 def move(new_pos):
     state = _State()
     if new_pos not in state.maze[state.pos]:
         print("OUCH!")
         new_pos = state.pos
+    
     old_pos = state.pos
     state.pos = new_pos
-    state.renderer.update_draw(
-        old_pos, state.pos, state.blue_gem_coords, state.red_gem_coords
-    )
+    state.renderer.update_draw(old_pos, state.pos, list(state.blue_gem_coords), list(state.red_gem_coords))
 
 
 def put_blue_gem(cell):
@@ -220,8 +217,13 @@ class Solver:
         self._state = _State(
             maze=maze, renderer=renderer, minotaur_coords=minotaur_coords
         )
-        renderer.initial_draw()
+        self.renderer.initial_draw()
 
     # To be implemented by students
     def solve():
         pass
+
+    def run(self):
+        solution_thread = threading.Thread(target=self.solve)
+        solution_thread.start()
+        self.renderer._root.mainloop()

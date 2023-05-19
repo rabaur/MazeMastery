@@ -114,8 +114,8 @@ class Renderer:
         self.draw_row_col_numbers(curr_pos)
         self.draw_gems(blue_gem_coords, red_gem_coords)
         self.draw_player(curr_pos)
-        self.update()
-        self.after()
+        self._canvas.update()
+        # self._canvas.after(self._delay)
 
     
     def draw_wall(self, start_x, start_y, end_x, end_y, wall_width, wall_color):
@@ -665,18 +665,6 @@ class Renderer:
                 anchor="n",
                 tag="number"
             )
-
-    def update(self):
-        """
-        Update the canvas.
-        """
-        self._canvas.update()
-
-    def after(self):
-        """
-        Wait for a short time.
-        """
-        self._canvas.after(self._delay)
     
     def mainloop(self):
         """

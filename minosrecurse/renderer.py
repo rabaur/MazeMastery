@@ -5,6 +5,7 @@ from minosrecurse.maze_utils import get_maze_size
 from minosrecurse.styles import Colors
 from minosrecurse.debug_menu import DebugMenu
 from typing import List, Tuple, Dict
+from PIL import ImageTk, Image
 
 class GUI:
     def __init__(
@@ -589,8 +590,17 @@ class GUI:
         i, j = self.minotaur_coords
         i += self.offset_rows
         j += self.offset_cols
+        # Open the PNG image using PIL
+        image = Image.open("minosrecurse/minotaur.png")
+
+        # Create a PhotoImage object from the PIL image
+        self.photo = ImageTk.PhotoImage(image)
+
+        # Draw the image on the canvas
+        self.canvas.create_image(j * self.cell_size, i * self.cell_size, image=self.photo)
         
         # Horns (base)
+        """
         self.canvas.create_oval(
             j * self.cell_size,
             i * self.cell_size,
@@ -640,6 +650,7 @@ class GUI:
             fill="red",
             tag="minotaur",
         )
+        """
 
     def draw_path_segment(self, source, target):
         """

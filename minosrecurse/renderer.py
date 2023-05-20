@@ -19,6 +19,7 @@ class GUI:
         offset_rows: int = 2,
         offset_cols: int = 1,
         initial_pos: Tuple[int, int] = (0, 0),
+        initial_lives: int = 5
     ):
         """
         A class for rendering a maze.
@@ -44,6 +45,7 @@ class GUI:
         self.offset_cols = offset_cols
         self.delay = delay
         self.m, self.n = get_maze_size(maze)
+        self.initial_lives = initial_lives
 
         # Derived sizes
         self.wall_width = self.cell_size // 10
@@ -78,7 +80,6 @@ class GUI:
             width=(self.n + self.offset_cols + 1) * cell_size,
             height=(self.m + self.offset_rows + 1) * cell_size
         )
-
         self.debug_menu = DebugMenu(self)
         self.canvas.grid(row=0, column=0, rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
         self.canvas.configure(bg=Colors.brown_highlight)
@@ -91,11 +92,11 @@ class GUI:
         """
         self.debug_menu.update_menu()
         self.draw_maze()
-        self.draw_hearts(5)
+        self.draw_hearts(num=self.initial_lives, filled=self.initial_lives)
         self.draw_minotaur()
         self.draw_initial_row_col_numbers()
 
-    def update_draw(self, old_pos, curr_pos):
+    def update_draw(self, old_pos, curr_pos, lives):
         """
         Draws components of the maze that will change throughout the game.
         Should be called after every move. Will clear buffers.
@@ -104,6 +105,7 @@ class GUI:
         self.draw_row_col_numbers(old_pos, curr_pos)
         self.draw_gems()
         self.draw_player(curr_pos)
+        self.draw_hearts(num=self.initial_lives, filled=lives)
         self.canvas.update()
         self.red_gem_buffer = set()
         self.blue_gem_buffer = set()
@@ -739,6 +741,7 @@ class GUI:
             border_width = self.cell_size // 20
         if heart_size is None:
             heart_size = self.cell_size // 4
+        self.canvas.delete("heart") 
         for i in range(num):
 
             # Heart shadow
@@ -766,7 +769,6 @@ class GUI:
                 highlight=i < filled,
                 highlight_color=Colors.reds[3]
             )
-
 
     def draw_heart(
         self, 
@@ -828,8 +830,75 @@ class GUI:
             tag="heart",
             outline=""
         )
+    
+    def draw_popup(self, text, color="black"):
+        """
+        Draws a popup message at position pos.
+        """
+        self.end_screen = tk.Label(
+            text=text,
+            font="Arial 100 bold",
+            bg=color,
+            fg="white",
+            borderwidth=self.cell_size // 2,
+            relief=tk.RAISED,
+            anchor=tk.CENTER,
+            padx=self.cell_size,
+            pady=self.cell_size
+        )
+        self.end_screen.grid(
+            row=0,
+            column=0,
+            rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
+    
+    def draw_cloud(self, pos):
+        """
+        Draws cloud surround the whole maze except a window around the player.
+        """
+        self.canvas.delete("cloud")
+        # Left side
+        self.canvas.create_rectangle(
+            self.cell_size * self.offset_cols,
+            self.cell_size * self.offset_rows,
+            self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
+            self.cell_size * self.offset_rows + self.cell_size * self.m,
+            fill="grey",
+            outline="",
+            tag="cloud"
+        )
 
+        # Right side
+        self.canvas.create_rectangle(
+            self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
+            self.cell_size * self.offset_rows,
+            self.cell_size * self.offset_cols + self.cell_size * self.n,
+            self.cell_size * self.offset_rows + self.cell_size * self.m,
+            fill="grey",
+            outline="",
+            tag="cloud"
+        )
 
+        # Top
+        self.canvas.create_rectangle(
+            self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
+            self.cell_size * self.offset_rows,
+            self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
+            self.cell_size * self.offset_rows + self.cell_size * max(0, pos[0] - 1),
+            fill="grey",
+            outline="",
+            tag="cloud"
+        )
+
+        # Bottom
+        self.canvas.create_rectangle(
+            self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
+            self.cell_size * self.offset_rows + self.cell_size * min(self.m, pos[0] + 2),
+            self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
+            self.cell_size * self.offset_rows + self.cell_size * self.m,
+            fill="grey",
+            outline="",
+            tag="cloud"
+        )
 
     def push_blue_gem_buffer(self, pos):
         self.blue_gem_buffer.add(pos)

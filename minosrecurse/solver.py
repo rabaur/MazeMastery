@@ -13,7 +13,7 @@ class Solver:
     reference to the renderer, instead passes it to the state after initialization.
     """
 
-    def __init__(self, level, rows=10, cols=10, cell_size=50):
+    def __init__(self, level, rows=10, cols=10, cell_size=50, delay=1000):
         if level == 1:
             maze = create_corridor(cols)
             minotaur_coords = (0, cols - 1)
@@ -32,7 +32,7 @@ class Solver:
         elif level == 6:
             maze = create_maze(rows, cols, (0, 0), 0.2)
             minotaur_coords = (rows - 4, cols - 4)
-        self._renderer = GUI(maze, minotaur_coords, cell_size=cell_size)
+        self._renderer = GUI(maze, minotaur_coords, cell_size=cell_size, delay=delay)
         self._state = State(
             maze=maze, renderer=self._renderer, minotaur_coords=minotaur_coords
         )

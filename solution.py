@@ -70,7 +70,6 @@ def level5():
 
 def level6():
     put_blue_gem(pos())
-    put_blue_gem(pos())
     all_neighbors = get_neighbors(pos())
 
     for neighbor in all_neighbors:

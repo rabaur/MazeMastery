@@ -122,6 +122,12 @@ class DebugMenu:
     
     def handle_debug_button(self):
         self.renderer.debug = not self.renderer.debug
+        state = State()
+        if self.renderer.debug:
+            self.renderer.draw_cloud(api.pos())
+            self.renderer.draw_hearts(num=state.initial_lives, filled=state.lives)
+        else:
+            self.renderer.canvas.delete("cloud")
         self.update_menu()
 
     def handle_nav_button(self, dir):
@@ -131,9 +137,20 @@ class DebugMenu:
         debug mode. Leaving debug mode will not possible anymore because the
         current thread is blocked.
         """
-        old_pos = api.pos()
         state = State()
-        state.pos = (old_pos[0] + dir[0], old_pos[1] + dir[1])
+        if state.dead:
+            return
+        old_pos = api.pos()
+        new_pos = (old_pos[0] + dir[0], old_pos[1] + dir[1])
+        if new_pos not in state.maze[old_pos]:
+            state.lives -= 1
+            new_pos = old_pos
+        if state.lives == 0:
+            state.renderer.draw_popup("You died!")
+            state.dead = True
+        state.pos = new_pos
         self.renderer.draw_path_segment(old_pos, api.pos())
         self.renderer.draw_row_col_numbers(old_pos, api.pos())
         self.renderer.draw_player(api.pos())
+        self.renderer.draw_cloud(api.pos())
+        self.renderer.draw_hearts(num=state.initial_lives, filled=state.lives)

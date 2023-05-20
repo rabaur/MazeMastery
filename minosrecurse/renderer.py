@@ -91,7 +91,7 @@ class GUI:
         """
         self.debug_menu.update_menu()
         self.draw_maze()
-        self.draw_hearts(10)
+        self.draw_hearts(5)
         self.draw_minotaur()
         self.draw_initial_row_col_numbers()
 
@@ -730,29 +730,40 @@ class GUI:
                 tag=f"col_number_{pos[1]}",
             )
     
-    def draw_hearts(self, n=5, border_width=None):
+    def draw_hearts(self, num=5, filled=3, border_width=None, heart_size=None):
         """
-        Draws n hearts on the top right corner of the canvas.
+        Draws 'num' hearts, 'filled' of which are filled in. Hearts are placed
+        on the first row of the canvas and grow from right to left.
         """
         if border_width is None:
             border_width = self.cell_size // 20
-        for i in range(n):
+        if heart_size is None:
+            heart_size = self.cell_size // 4
+        for i in range(num):
+
+            # Heart shadow
+            self.draw_heart(
+                x=(self.offset_cols + (self.n - 1 - i)) * self.cell_size + self.cell_size // 2 + self.cell_size // 10,
+                y=self.cell_size // 2 + self.cell_size // 10,
+                size=heart_size,
+                color=Colors.brown_border
+            )
 
             # Draw an outer heart a bit larger than the inner one
             self.draw_heart(
-                self.offset_cols * i * self.cell_size + self.cell_size // 2,
-                self.cell_size // 2,
-                self.cell_size // 4,
+                x=(self.offset_cols + (self.n - 1 - i)) * self.cell_size + self.cell_size // 2,
+                y=self.cell_size // 2,
+                size=heart_size,
                 color=Colors.reds[0]
             )
 
-            # Draw an inner heart
+            # Draw an inner heart - if we are larger than filled, we draw a greyed out heart.
             self.draw_heart(
-                self.offset_cols * i * self.cell_size + self.cell_size // 2,
-                self.cell_size // 2 - border_width,
-                self.cell_size // 4 - border_width,
-                color=Colors.reds[1],
-                highlight=True,
+                x=(self.offset_cols + (self.n - 1 -i)) * self.cell_size + self.cell_size // 2,
+                y=self.cell_size // 2 - border_width,
+                size=heart_size- border_width,
+                color=Colors.reds[1] if i < filled else Colors.reds[-1],
+                highlight=i < filled,
                 highlight_color=Colors.reds[3]
             )
 

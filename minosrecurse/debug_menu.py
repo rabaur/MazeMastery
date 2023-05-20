@@ -149,8 +149,8 @@ class DebugMenu:
             state.renderer.draw_popup("You died!")
             state.dead = True
         state.pos = new_pos
-        self.renderer.draw_path_segment(old_pos, api.pos())
+        # self.renderer.draw_path_segment(old_pos, api.pos())
         self.renderer.draw_row_col_numbers(old_pos, api.pos())
-        self.renderer.draw_player(api.pos())
+        self.renderer.draw_player(pos=api.pos(), old_pos=old_pos)
         self.renderer.draw_cloud(api.pos())
         self.renderer.draw_hearts(num=state.initial_lives, filled=state.lives)

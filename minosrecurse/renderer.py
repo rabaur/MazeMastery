@@ -102,10 +102,10 @@ class GUI:
         Draws components of the maze that will change throughout the game.
         Should be called after every move. Will clear buffers.
         """
-        self.draw_path_segment(old_pos, curr_pos)
+        # self.draw_path_segment(old_pos, curr_pos)
         self.draw_row_col_numbers(old_pos, curr_pos)
         self.draw_gems()
-        self.draw_player(curr_pos)
+        self.draw_player(old_pos, curr_pos)
         self.draw_hearts(num=self.initial_lives, filled=lives)
         self.canvas.update()
         self.red_gem_buffer = set()
@@ -505,19 +505,45 @@ class GUI:
         # Cover empty cells.
         self.draw_grass()
 
-    def draw_player(self, pos):
+    def draw_player(self, old_pos, pos):
         """
         Render the player using tkinter.
         """
         self.canvas.delete("player")
+        i, j = pos
+        i += self.offset_rows
+        j += self.offset_cols
+
+        # Shadow
         self.canvas.create_oval(
-            (pos[1] + self.offset_cols) * self.cell_size + self.cell_size // 4,
-            (pos[0] + self.offset_rows) * self.cell_size + self.cell_size // 4,
-            (pos[1] + self.offset_cols) * self.cell_size + 3 * self.cell_size // 4,
-            (pos[0] + self.offset_rows) * self.cell_size + 3 * self.cell_size // 4,
-            fill="green",
+            j * self.cell_size + self.cell_size // 3,
+            i * self.cell_size + 2 * self.cell_size // 3,
+            j * self.cell_size +  4 * self.cell_size // 5,
+            i * self.cell_size +  4 * self.cell_size // 5,
+            fill=Colors.brown_border,
+            outline="",
             tag="player",
         )
+
+        # Load image that corresponds to the walking direction.
+        if old_pos[0] < pos[0]:
+            image = Image.open("minosrecurse/warrior_down.png")
+        elif old_pos[0] > pos[0]:
+            image = Image.open("minosrecurse/warrior_up.png")
+        elif old_pos[1] < pos[1]:
+            image = Image.open("minosrecurse/warrior_right.png")
+        else:
+            image = Image.open("minosrecurse/warrior_left.png")
+
+        # Resize the image
+        image = image.resize((self.cell_size, self.cell_size), Image.NEAREST)
+
+        # Create a PhotoImage object from the PIL image
+        self.warrior_photo = ImageTk.PhotoImage(image)
+
+        # Draw the image on the canvas (somehow images are the only thing that
+        # are centered in tkinter, so we need to offset)
+        self.canvas.create_image(j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size // 4, image=self.warrior_photo, tag="player")
 
     def draw_pebble(self, pos):
         i, j = pos
@@ -590,67 +616,29 @@ class GUI:
         i, j = self.minotaur_coords
         i += self.offset_rows
         j += self.offset_cols
-        # Open the PNG image using PIL
-        image = Image.open("minosrecurse/minotaur.png")
 
-        # Create a PhotoImage object from the PIL image
-        self.photo = ImageTk.PhotoImage(image)
-
-        # Draw the image on the canvas
-        self.canvas.create_image(j * self.cell_size, i * self.cell_size, image=self.photo)
-        
-        # Horns (base)
-        """
+        # Shadow
         self.canvas.create_oval(
-            j * self.cell_size,
-            i * self.cell_size,
-            j * self.cell_size + self.cell_size,
-            i * self.cell_size + self.cell_size // 2,
-            fill="black",
-            tag="minotaur",
-            outline="lightgrey",
-        )
-
-        # Horns (mask)
-        self.canvas.create_oval(
-            j * self.cell_size + self.cell_size // 5,
-            i * self.cell_size,
-            j * self.cell_size + self.cell_size // 5 * 4,
-            i * self.cell_size + self.cell_size // 4,
-            fill="lightgrey",
-            tag="minotaur",
+            j * self.cell_size + self.cell_size // 3,
+            i * self.cell_size + 2 * self.cell_size // 3,
+            j * self.cell_size +  4 * self.cell_size // 5,
+            i * self.cell_size +  4 * self.cell_size // 5,
+            fill=Colors.brown_border,
             outline="",
         )
 
-        # Body
-        self.canvas.create_oval(
-            j * self.cell_size + self.cell_size // 2 - self.minotaur_size // 2,
-            i * self.cell_size + self.cell_size // 2 - self.minotaur_size // 2,
-            j * self.cell_size + self.cell_size // 2 + self.minotaur_size // 2,
-            i * self.cell_size + self.cell_size // 2 + self.minotaur_size // 2,
-            fill="black",
-            tag="minotaur",
-        )
+        # Open the PNG image using PIL
+        image = Image.open("minosrecurse/minotaur.png")
 
-        # Eyes
-        self.canvas.create_oval(
-            j * self.cell_size + self.cell_size // 2 - self.minotaur_size // 3,
-            i * self.cell_size + self.cell_size // 2 - self.minotaur_size // 4,
-            j * self.cell_size + self.cell_size // 2 - self.minotaur_size // 8,
-            i * self.cell_size + self.cell_size // 2,
-            fill="red",
-            tag="minotaur",
-        )
+        # Resize the image
+        image = image.resize((self.cell_size, self.cell_size), Image.ANTIALIAS)
 
-        self.canvas.create_oval(
-            j * self.cell_size + self.cell_size // 2 + self.minotaur_size // 8,
-            i * self.cell_size + self.cell_size // 2 - self.minotaur_size // 4,
-            j * self.cell_size + self.cell_size // 2 + self.minotaur_size // 3,
-            i * self.cell_size + self.cell_size // 2,
-            fill="red",
-            tag="minotaur",
-        )
-        """
+        # Create a PhotoImage object from the PIL image
+        self.minotaur_photo = ImageTk.PhotoImage(image)
+
+        # Draw the image on the canvas (somehow images are the only thing that
+        # are centered in tkinter, so we need to offset)
+        self.canvas.create_image(j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size // 4, image=self.minotaur_photo)
 
     def draw_path_segment(self, source, target):
         """
@@ -862,7 +850,7 @@ class GUI:
             column=0,
             rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
     
-    def draw_cloud(self, pos):
+    def draw_cloud(self, pos, cloud_color="grey"):
         """
         Draws cloud surround the whole maze except a window around the player.
         """
@@ -873,7 +861,7 @@ class GUI:
             self.cell_size * self.offset_rows,
             self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
             self.cell_size * self.offset_rows + self.cell_size * self.m,
-            fill="grey",
+            fill=cloud_color,
             outline="",
             tag="cloud"
         )
@@ -884,7 +872,7 @@ class GUI:
             self.cell_size * self.offset_rows,
             self.cell_size * self.offset_cols + self.cell_size * self.n,
             self.cell_size * self.offset_rows + self.cell_size * self.m,
-            fill="grey",
+            fill=cloud_color,
             outline="",
             tag="cloud"
         )
@@ -895,7 +883,7 @@ class GUI:
             self.cell_size * self.offset_rows,
             self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
             self.cell_size * self.offset_rows + self.cell_size * max(0, pos[0] - 1),
-            fill="grey",
+            fill=cloud_color,
             outline="",
             tag="cloud"
         )
@@ -906,7 +894,7 @@ class GUI:
             self.cell_size * self.offset_rows + self.cell_size * min(self.m, pos[0] + 2),
             self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
             self.cell_size * self.offset_rows + self.cell_size * self.m,
-            fill="grey",
+            fill=cloud_color,
             outline="",
             tag="cloud"
         )

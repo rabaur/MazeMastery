@@ -6,9 +6,9 @@ class Colors:
     green_border = "#316e30"
     grass_base = "#64b663"
     grass_top = "#a6d5a5"
-    brown_base = "#8c7748"
-    brown_highlight = "#b8a375"
-    brown_border = "#65512f"
+    brown_base = "#81755a"
+    brown_highlight = "#b4a993"
+    brown_border = "#544d3b"
     blues = {
         0: "#0069aa",
         1: "#0098dc",

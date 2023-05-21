@@ -47,6 +47,7 @@ class GUI:
         self.delay = delay
         self.m, self.n = get_maze_size(maze)
         self.initial_lives = initial_lives
+        self.sprites = {}
 
         # Derived sizes
         self.wall_width = self.cell_size // 10
@@ -850,7 +851,7 @@ class GUI:
             column=0,
             rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
     
-    def draw_cloud(self, pos, cloud_color="grey"):
+    def draw_cloud(self, pos, cloud_color=Colors.cloud):
         """
         Draws cloud surround the whole maze except a window around the player.
         """
@@ -858,7 +859,7 @@ class GUI:
         # Left side
         self.canvas.create_rectangle(
             self.cell_size * self.offset_cols,
-            self.cell_size * self.offset_rows,
+            self.cell_size,
             self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
             self.cell_size * self.offset_rows + self.cell_size * self.m,
             fill=cloud_color,
@@ -869,7 +870,7 @@ class GUI:
         # Right side
         self.canvas.create_rectangle(
             self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
-            self.cell_size * self.offset_rows,
+            self.cell_size,
             self.cell_size * self.offset_cols + self.cell_size * self.n,
             self.cell_size * self.offset_rows + self.cell_size * self.m,
             fill=cloud_color,
@@ -880,9 +881,9 @@ class GUI:
         # Top
         self.canvas.create_rectangle(
             self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
-            self.cell_size * self.offset_rows,
+            self.cell_size,
             self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
-            self.cell_size * self.offset_rows + self.cell_size * max(0, pos[0] - 1),
+            self.cell_size + self.cell_size * max(0, pos[0] - 1),
             fill=cloud_color,
             outline="",
             tag="cloud"
@@ -898,6 +899,83 @@ class GUI:
             outline="",
             tag="cloud"
         )
+        i, j = pos
+
+        # North west corner
+        self.draw_sprite("minosrecurse/cloud_nw.png", self.cell_size, -self.offset_rows, -self.offset_cols, "cloud_nw", "cloud")
+
+        # North east corner
+        self.draw_sprite("minosrecurse/cloud_ne.png", self.cell_size, -self.offset_rows, self.n, "cloud_ne", "cloud")
+
+        # South east corner
+        self.draw_sprite("minosrecurse/cloud_se.png", self.cell_size, self.m, self.n, "cloud_se", "cloud")
+
+        # South west corner
+        self.draw_sprite("minosrecurse/cloud_sw.png", self.cell_size, self.m, -self.offset_cols, "cloud_sw", "cloud")
+
+        # Top border
+        for l in range(self.n):
+            self.draw_sprite("minosrecurse/cloud_n.png", self.cell_size, -self.offset_rows, l, f"cloud_n_{l}", "cloud")
+        
+        # Bottom border
+        for l in range(self.n):
+            self.draw_sprite("minosrecurse/cloud_s.png", self.cell_size, self.m, l, f"cloud_s_{l}", "cloud")
+        
+        # Left border
+        for l in range(-self.offset_rows + 1, self.m):
+            self.draw_sprite("minosrecurse/cloud_w.png", self.cell_size, l, -self.offset_cols, f"cloud_w_{l}", "cloud")
+        
+        # Right border
+        for l in range(-self.offset_rows + 1, self.m):
+            self.draw_sprite("minosrecurse/cloud_e.png", self.cell_size, l, self.n, f"cloud_e_{l}", "cloud")
+        
+        # North
+        self.draw_sprite("minosrecurse/cloud_s.png", self.cell_size, i - 2, j, "cloud_s", "cloud")
+        self.draw_sprite("minosrecurse/cloud_s_seam.png", self.cell_size, i - 1, j, "cloud_s_seam", "cloud")
+
+        # Nort East
+        self.draw_sprite("minosrecurse/cloud_ne_inner_corner.png", self.cell_size, i - 1, j + 1, "cloud_ne_inner_corner", "cloud")
+        self.draw_sprite("minosrecurse/cloud_ne_inner_corner_e.png", self.cell_size, i - 1, j + 2, "cloud_ne_inner_corner_e", "cloud")
+        self.draw_sprite("minosrecurse/cloud_ne_inner_corner_n.png", self.cell_size, i - 2, j + 1, "cloud_ne_inner_corner_n", "cloud")
+        
+        # East
+        self.draw_sprite("minosrecurse/cloud_w.png", self.cell_size, i, j + 2, "cloud_w", "cloud")
+
+        # South East
+        self.draw_sprite("minosrecurse/cloud_se_inner_corner.png", self.cell_size, i + 1, j + 1, "cloud_se_inner_corner", "cloud")
+        self.draw_sprite("minosrecurse/cloud_se_inner_corner_e.png", self.cell_size, i + 1, j + 2, "cloud_se_inner_corner_e", "cloud")
+        self.draw_sprite("minosrecurse/cloud_se_inner_corner_s.png", self.cell_size, i + 2, j + 1, "cloud_se_inner_corner_s", "cloud")
+
+        # South
+        self.draw_sprite("minosrecurse/cloud_n.png", self.cell_size, i + 2, j, "cloud_n", "cloud")
+
+        # South West
+        self.draw_sprite("minosrecurse/cloud_sw_inner_corner.png", self.cell_size, i + 1, j - 1, "cloud_sw_inner_corner", "cloud")
+        self.draw_sprite("minosrecurse/cloud_sw_inner_corner_s.png", self.cell_size, i + 2, j - 1, "cloud_sw_inner_corner_s", "cloud")
+        self.draw_sprite("minosrecurse/cloud_sw_inner_corner_w.png", self.cell_size, i + 1, j - 2, "cloud_sw_inner_corner_w", "cloud")
+
+        # West
+        self.draw_sprite("minosrecurse/cloud_e.png", self.cell_size, i, j - 2, "cloud_e", "cloud")
+
+        # North West
+        self.draw_sprite("minosrecurse/cloud_nw_inner_corner.png", self.cell_size, i - 1, j - 1, "cloud_nw_inner_corner", "cloud")
+        self.draw_sprite("minosrecurse/cloud_nw_inner_corner_w.png", self.cell_size, i - 1, j - 2, "cloud_nw_inner_corner_w", "cloud")
+        self.draw_sprite("minosrecurse/cloud_nw_inner_corner_n.png", self.cell_size, i - 2, j - 1, "cloud_nw_inner_corner_n", "cloud")
+
+    def draw_sprite(self, path, size, i, j, name, tag):
+        """
+        Draws a sprite at position pos.
+        """
+        image = Image.open(path)
+        image = image.resize((size, size), Image.NEAREST)
+        self.sprites[name] = ImageTk.PhotoImage(image)
+        self.canvas.create_image(
+            (self.offset_cols + j) * self.cell_size + self.cell_size // 2, 
+            (self.offset_rows + i) * self.cell_size + self.cell_size // 2, 
+            image=self.sprites[name],
+            tag=tag
+        )
+
 
     def push_blue_gem_buffer(self, pos):
         self.blue_gem_buffer.add(pos)

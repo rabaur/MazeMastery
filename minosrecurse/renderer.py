@@ -387,12 +387,16 @@ class GUI:
             width=2,
         )
 
-    def draw_grass_blades(self, pos, num_grass=3, num_blades=4, blade_width=4):
+    def draw_grass_blades(self, pos, num_grass=3, num_blades=4):
         """
         Draws some weeds at a random position in the cell (i, j).
         """
         max_height = self.cell_size // 2
         min_height = self.cell_size // 4
+        blade_width = int(math.ceil(self.cell_size / 20))
+
+        # num_blades should be chosen so that num_blades * 2 * blade_width < cell_size
+        num_blades = min(num_blades, self.cell_size // (2 * blade_width))
 
         # Random position in the cell (i, j)
         k, j = pos

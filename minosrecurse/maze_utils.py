@@ -16,7 +16,7 @@ def create_corridor(length):
     maze[(0, length-1)] = [(0, length-2)]
     return maze
 
-def create_SAW(rows, cols):
+def create_SAW(rows, cols, temp=0.5):
     """
     Generates a maze of size `rows` x `cols` that contains a self-avoiding walk.
     """
@@ -25,7 +25,29 @@ def create_SAW(rows, cols):
     offsets = [(-1, 0), (0, -1), (0, 1), (1, 0)]
     while True:
         path.append(pos)
-        potential_neighbors = [(pos[0] + i, pos[1] + j) for i, j in offsets]
+        i, j = pos
+
+        # Count number of unvisited cells for each of the possible directions
+        num_unvisited = {
+            "up": 0,
+            "left": 0,
+            "right": 0,
+            "down": 0
+        }
+        for ii in range(rows):
+            for jj in range(cols):
+                if (ii, jj) in path:
+                    continue
+                if ii < i:
+                    num_unvisited["up"] += 1
+                if ii > i:
+                    num_unvisited["down"] += 1
+                if jj < j:
+                    num_unvisited["left"] += 1
+                if jj > j:
+                    num_unvisited["right"] += 1
+        print(num_unvisited)
+        potential_neighbors = [(pos[0] + di, pos[1] + dj) for di, dj in offsets]
         neighbors = [n for n in potential_neighbors if n[0] >= 0 and n[0] < rows and n[1] >= 0 and n[1] < cols]
         neighbors = [n for n in neighbors if n not in path]
         if len(neighbors) == 0:

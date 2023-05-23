@@ -89,5 +89,5 @@ class MySolver(Solver):
     def solve(self):
         level5()
 
-solver = MySolver(level=6, rows=10, cols=10, cell_size=100)
+solver = MySolver(level=3, rows=50, cols=50, cell_size=30)
 solver.run()

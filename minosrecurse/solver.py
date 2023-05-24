@@ -13,7 +13,8 @@ class Solver:
     reference to the renderer, instead passes it to the state after initialization.
     """
 
-    def __init__(self, level, rows=10, cols=10, cell_size=50, delay=1000):
+    def __init__(self, level, rows=10, cols=10, cell_size=50, delay=1000, seed=None):
+        random.seed(seed)
         if level == 1:
             maze = create_corridor(cols)
             minotaur_coords = (0, cols - 1)

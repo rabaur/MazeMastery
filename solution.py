@@ -1,5 +1,5 @@
-from mazemastery.api import *
-from mazemastery.solver import Solver
+from mazemastery.src.api import *
+from mazemastery.src.solver import Solver
 
 def level1():
     while (not was_found()):

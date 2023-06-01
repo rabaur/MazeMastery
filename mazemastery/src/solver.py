@@ -1,7 +1,7 @@
-from mazemastery.maze import create_maze
-from mazemastery.maze_utils import create_corridor, create_SAW
-from mazemastery.renderer import GUI
-from mazemastery.state import State
+from mazemastery.src.maze import create_maze
+from mazemastery.src.maze_utils import create_corridor, create_SAW
+from mazemastery.src.renderer import GUI
+from mazemastery.src.state import State
 import threading
 import random
 

@@ -1,5 +1,5 @@
 import time
-from mazemastery.solver import State
+from mazemastery.src.solver import State
 
 def get_pos():
     state = State()

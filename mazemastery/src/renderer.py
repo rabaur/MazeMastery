@@ -1,11 +1,12 @@
 import tkinter as tk
 import random
 import math
-from mazemastery.maze_utils import get_maze_size
-from mazemastery.styles import Colors
-from mazemastery.debug_menu import DebugMenu
+from mazemastery.src.maze_utils import get_maze_size
+from mazemastery.src.styles import Colors
+from mazemastery.src.debug_menu import DebugMenu
 from typing import List, Tuple, Dict
 from PIL import ImageTk, Image
+import os
 
 class GUI:
     def __init__(
@@ -86,6 +87,11 @@ class GUI:
         self.canvas.grid(row=0, column=0, rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
         self.canvas.configure(bg=Colors.brown_highlight)
         self.root.configure(bg=Colors.brown_highlight)
+
+        # For sprites
+        self.sprites = {}
+        self.sprite_path = os.path.join(os.path.dirname(__file__), os.path.join("..", "sprites"))
+        
 
     def initial_draw(self):
         """
@@ -530,25 +536,17 @@ class GUI:
             tag="player",
         )
 
-        # Load image that corresponds to the walking direction.
+        file_name = ""
         if old_pos[0] < pos[0]:
-            image = Image.open("mazemastery/warrior_down.png")
+            file_name = "warrior_down.png"
         elif old_pos[0] > pos[0]:
-            image = Image.open("mazemastery/warrior_up.png")
+            file_name = "warrior_up.png"
         elif old_pos[1] < pos[1]:
-            image = Image.open("mazemastery/warrior_right.png")
+            file_name = "warrior_right.png"
         else:
-            image = Image.open("mazemastery/warrior_left.png")
+            file_name = "warrior_left.png"
 
-        # Resize the image
-        image = image.resize((self.cell_size, self.cell_size), Image.NEAREST)
-
-        # Create a PhotoImage object from the PIL image
-        self.warrior_photo = ImageTk.PhotoImage(image)
-
-        # Draw the image on the canvas (somehow images are the only thing that
-        # are centered in tkinter, so we need to offset)
-        self.canvas.create_image(j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size // 4, image=self.warrior_photo, tag="player")
+        self.draw_sprite(file_name, self.cell_size, i, j, "player", use_offset=False, dy=-self.cell_size // 4)
 
     def draw_pebble(self, pos):
         i, j = pos
@@ -632,23 +630,9 @@ class GUI:
             outline="",
         )
 
-        # Open the PNG image using PIL
-        image = Image.open("mazemastery/minotaur.png")
-
-        # Resize the image
-        image = image.resize((self.cell_size, self.cell_size), Image.ANTIALIAS)
-
-        # Create a PhotoImage object from the PIL image
-        self.minotaur_photo = ImageTk.PhotoImage(image)
-
-        # Draw the image on the canvas (somehow images are the only thing that
-        # are centered in tkinter, so we need to offset)
-        self.canvas.create_image(j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size // 4, image=self.minotaur_photo)
+        self.draw_sprite("minotaur.png", self.cell_size, i, j, "minotaur", use_offset=False, dx=-self.cell_size // 4)
 
     def draw_path_segment(self, source, target):
-        """
-        Render a path segment using tkinter.
-        """
         self.canvas.create_line(
             (source[1] + self.offset_cols) * self.cell_size + self.cell_size // 2,
             (source[0] + self.offset_rows) * self.cell_size + self.cell_size // 2,
@@ -660,9 +644,6 @@ class GUI:
         )
 
     def draw_initial_row_col_numbers(self, font_size=None):
-        """
-        Render initial row and column numbers using tkinter.
-        """
         if font_size is None:
             font_size = self.cell_size // 4
         for i in range(self.m):
@@ -687,9 +668,6 @@ class GUI:
             )
 
     def draw_row_col_numbers(self, old_pos, pos, font_size=None):
-        """
-        Render row and column numbers using tkinter.
-        """
         if font_size is None:
             font_size = self.cell_size // 4
         self.canvas.delete("number")  # delete old numbers
@@ -836,9 +814,6 @@ class GUI:
         )
     
     def draw_popup(self, text, color="black"):
-        """
-        Draws a popup message at position pos.
-        """
         self.end_screen = tk.Label(
             text=text,
             font="Arial 100 bold",
@@ -906,80 +881,85 @@ class GUI:
         i, j = pos
 
         # North west corner
-        self.draw_sprite("mazemastery/cloud_nw.png", self.cell_size, -self.offset_rows, -self.offset_cols, "cloud_nw", "cloud")
+        self.draw_sprite("cloud_nw.png", self.cell_size, -self.offset_rows, -self.offset_cols, "cloud")
 
         # North east corner
-        self.draw_sprite("mazemastery/cloud_ne.png", self.cell_size, -self.offset_rows, self.n, "cloud_ne", "cloud")
+        self.draw_sprite("cloud_ne.png", self.cell_size, -self.offset_rows, self.n, "cloud")
 
         # South east corner
-        self.draw_sprite("mazemastery/cloud_se.png", self.cell_size, self.m, self.n, "cloud_se", "cloud")
+        self.draw_sprite("cloud_se.png", self.cell_size, self.m, self.n, "cloud")
 
         # South west corner
-        self.draw_sprite("mazemastery/cloud_sw.png", self.cell_size, self.m, -self.offset_cols, "cloud_sw", "cloud")
+        self.draw_sprite("cloud_sw.png", self.cell_size, self.m, -self.offset_cols, "cloud")
 
         # Top border
         for l in range(self.n):
-            self.draw_sprite("mazemastery/cloud_n.png", self.cell_size, -self.offset_rows, l, f"cloud_n_{l}", "cloud")
+            self.draw_sprite("cloud_n.png", self.cell_size, -self.offset_rows, l, "cloud", str(l))
         
         # Bottom border
         for l in range(self.n):
-            self.draw_sprite("mazemastery/cloud_s.png", self.cell_size, self.m, l, f"cloud_s_{l}", "cloud")
+            self.draw_sprite("cloud_s.png", self.cell_size, self.m, l, "cloud", str(l))
         
         # Left border
         for l in range(-self.offset_rows + 1, self.m):
-            self.draw_sprite("mazemastery/cloud_w.png", self.cell_size, l, -self.offset_cols, f"cloud_w_{l}", "cloud")
+            self.draw_sprite("cloud_w.png", self.cell_size, l, -self.offset_cols, "cloud", str(l))
         
         # Right border
         for l in range(-self.offset_rows + 1, self.m):
-            self.draw_sprite("mazemastery/cloud_e.png", self.cell_size, l, self.n, f"cloud_e_{l}", "cloud")
+            self.draw_sprite("cloud_e.png", self.cell_size, l, self.n, "cloud", str(l))
         
         # North
-        self.draw_sprite("mazemastery/cloud_s.png", self.cell_size, i - 2, j, "cloud_s", "cloud")
-        self.draw_sprite("mazemastery/cloud_s_seam.png", self.cell_size, i - 1, j, "cloud_s_seam", "cloud")
+        self.draw_sprite("cloud_s.png", self.cell_size, i - 2, j, "cloud")
+        self.draw_sprite("cloud_s_seam.png", self.cell_size, i - 1, j, "cloud")
 
         # Nort East
-        self.draw_sprite("mazemastery/cloud_ne_inner_corner.png", self.cell_size, i - 1, j + 1, "cloud_ne_inner_corner", "cloud")
-        self.draw_sprite("mazemastery/cloud_ne_inner_corner_e.png", self.cell_size, i - 1, j + 2, "cloud_ne_inner_corner_e", "cloud")
-        self.draw_sprite("mazemastery/cloud_ne_inner_corner_n.png", self.cell_size, i - 2, j + 1, "cloud_ne_inner_corner_n", "cloud")
+        self.draw_sprite("cloud_ne_inner_corner.png", self.cell_size, i - 1, j + 1, "cloud")
+        self.draw_sprite("cloud_ne_inner_corner_e.png", self.cell_size, i - 1, j + 2, "cloud")
+        self.draw_sprite("cloud_ne_inner_corner_n.png", self.cell_size, i - 2, j + 1, "cloud")
         
         # East
-        self.draw_sprite("mazemastery/cloud_w.png", self.cell_size, i, j + 2, "cloud_w", "cloud")
+        self.draw_sprite("cloud_w.png", self.cell_size, i, j + 2, "cloud")
 
         # South East
-        self.draw_sprite("mazemastery/cloud_se_inner_corner.png", self.cell_size, i + 1, j + 1, "cloud_se_inner_corner", "cloud")
-        self.draw_sprite("mazemastery/cloud_se_inner_corner_e.png", self.cell_size, i + 1, j + 2, "cloud_se_inner_corner_e", "cloud")
-        self.draw_sprite("mazemastery/cloud_se_inner_corner_s.png", self.cell_size, i + 2, j + 1, "cloud_se_inner_corner_s", "cloud")
+        self.draw_sprite("cloud_se_inner_corner.png", self.cell_size, i + 1, j + 1, "cloud")
+        self.draw_sprite("cloud_se_inner_corner_e.png", self.cell_size, i + 1, j + 2, "cloud")
+        self.draw_sprite("cloud_se_inner_corner_s.png", self.cell_size, i + 2, j + 1, "cloud")
 
         # South
-        self.draw_sprite("mazemastery/cloud_n.png", self.cell_size, i + 2, j, "cloud_n", "cloud")
+        self.draw_sprite("cloud_n.png", self.cell_size, i + 2, j, "cloud")
 
         # South West
-        self.draw_sprite("mazemastery/cloud_sw_inner_corner.png", self.cell_size, i + 1, j - 1, "cloud_sw_inner_corner", "cloud")
-        self.draw_sprite("mazemastery/cloud_sw_inner_corner_s.png", self.cell_size, i + 2, j - 1, "cloud_sw_inner_corner_s", "cloud")
-        self.draw_sprite("mazemastery/cloud_sw_inner_corner_w.png", self.cell_size, i + 1, j - 2, "cloud_sw_inner_corner_w", "cloud")
+        self.draw_sprite("cloud_sw_inner_corner.png", self.cell_size, i + 1, j - 1, "cloud")
+        self.draw_sprite("cloud_sw_inner_corner_s.png", self.cell_size, i + 2, j - 1, "cloud")
+        self.draw_sprite("cloud_sw_inner_corner_w.png", self.cell_size, i + 1, j - 2, "cloud")
 
         # West
-        self.draw_sprite("mazemastery/cloud_e.png", self.cell_size, i, j - 2, "cloud_e", "cloud")
+        self.draw_sprite("cloud_e.png", self.cell_size, i, j - 2, "cloud")
 
         # North West
-        self.draw_sprite("mazemastery/cloud_nw_inner_corner.png", self.cell_size, i - 1, j - 1, "cloud_nw_inner_corner", "cloud")
-        self.draw_sprite("mazemastery/cloud_nw_inner_corner_w.png", self.cell_size, i - 1, j - 2, "cloud_nw_inner_corner_w", "cloud")
-        self.draw_sprite("mazemastery/cloud_nw_inner_corner_n.png", self.cell_size, i - 2, j - 1, "cloud_nw_inner_corner_n", "cloud")
+        self.draw_sprite("cloud_nw_inner_corner.png", self.cell_size, i - 1, j - 1, "cloud")
+        self.draw_sprite("cloud_nw_inner_corner_w.png", self.cell_size, i - 1, j - 2, "cloud")
+        self.draw_sprite("cloud_nw_inner_corner_n.png", self.cell_size, i - 2, j - 1, "cloud")
 
-    def draw_sprite(self, path, size, i, j, name, tag):
+    def draw_sprite(self, name, size, i, j, tag, unique_id=None, use_offset=True, dx= 0, dy=0):
         """
         Draws a sprite at position pos.
         """
-        image = Image.open(path)
+        image = Image.open(os.path.join(self.sprite_path, name))
         image = image.resize((size, size), Image.NEAREST)
-        self.sprites[name] = ImageTk.PhotoImage(image)
+
+        # Need to tie the image to the object somehow, otherwise it gets garbage collected
+        stored_name = f"{name}{'_' + unique_id if unique_id is not None else ''}"
+        self.sprites[stored_name] = ImageTk.PhotoImage(image)
+        if use_offset:
+            i += self.offset_rows
+            j += self.offset_cols
         self.canvas.create_image(
-            (self.offset_cols + j) * self.cell_size + self.cell_size // 2, 
-            (self.offset_rows + i) * self.cell_size + self.cell_size // 2, 
-            image=self.sprites[name],
+            j * self.cell_size + self.cell_size // 2 + dx, 
+            i * self.cell_size + self.cell_size // 2 + dy, 
+            image=self.sprites[stored_name],
             tag=tag
         )
-
 
     def push_blue_gem_buffer(self, pos):
         self.blue_gem_buffer.add(pos)

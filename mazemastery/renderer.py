@@ -1,9 +1,9 @@
 import tkinter as tk
 import random
 import math
-from minosrecurse.maze_utils import get_maze_size
-from minosrecurse.styles import Colors
-from minosrecurse.debug_menu import DebugMenu
+from mazemastery.maze_utils import get_maze_size
+from mazemastery.styles import Colors
+from mazemastery.debug_menu import DebugMenu
 from typing import List, Tuple, Dict
 from PIL import ImageTk, Image
 
@@ -532,13 +532,13 @@ class GUI:
 
         # Load image that corresponds to the walking direction.
         if old_pos[0] < pos[0]:
-            image = Image.open("minosrecurse/warrior_down.png")
+            image = Image.open("mazemastery/warrior_down.png")
         elif old_pos[0] > pos[0]:
-            image = Image.open("minosrecurse/warrior_up.png")
+            image = Image.open("mazemastery/warrior_up.png")
         elif old_pos[1] < pos[1]:
-            image = Image.open("minosrecurse/warrior_right.png")
+            image = Image.open("mazemastery/warrior_right.png")
         else:
-            image = Image.open("minosrecurse/warrior_left.png")
+            image = Image.open("mazemastery/warrior_left.png")
 
         # Resize the image
         image = image.resize((self.cell_size, self.cell_size), Image.NEAREST)
@@ -633,7 +633,7 @@ class GUI:
         )
 
         # Open the PNG image using PIL
-        image = Image.open("minosrecurse/minotaur.png")
+        image = Image.open("mazemastery/minotaur.png")
 
         # Resize the image
         image = image.resize((self.cell_size, self.cell_size), Image.ANTIALIAS)
@@ -906,65 +906,65 @@ class GUI:
         i, j = pos
 
         # North west corner
-        self.draw_sprite("minosrecurse/cloud_nw.png", self.cell_size, -self.offset_rows, -self.offset_cols, "cloud_nw", "cloud")
+        self.draw_sprite("mazemastery/cloud_nw.png", self.cell_size, -self.offset_rows, -self.offset_cols, "cloud_nw", "cloud")
 
         # North east corner
-        self.draw_sprite("minosrecurse/cloud_ne.png", self.cell_size, -self.offset_rows, self.n, "cloud_ne", "cloud")
+        self.draw_sprite("mazemastery/cloud_ne.png", self.cell_size, -self.offset_rows, self.n, "cloud_ne", "cloud")
 
         # South east corner
-        self.draw_sprite("minosrecurse/cloud_se.png", self.cell_size, self.m, self.n, "cloud_se", "cloud")
+        self.draw_sprite("mazemastery/cloud_se.png", self.cell_size, self.m, self.n, "cloud_se", "cloud")
 
         # South west corner
-        self.draw_sprite("minosrecurse/cloud_sw.png", self.cell_size, self.m, -self.offset_cols, "cloud_sw", "cloud")
+        self.draw_sprite("mazemastery/cloud_sw.png", self.cell_size, self.m, -self.offset_cols, "cloud_sw", "cloud")
 
         # Top border
         for l in range(self.n):
-            self.draw_sprite("minosrecurse/cloud_n.png", self.cell_size, -self.offset_rows, l, f"cloud_n_{l}", "cloud")
+            self.draw_sprite("mazemastery/cloud_n.png", self.cell_size, -self.offset_rows, l, f"cloud_n_{l}", "cloud")
         
         # Bottom border
         for l in range(self.n):
-            self.draw_sprite("minosrecurse/cloud_s.png", self.cell_size, self.m, l, f"cloud_s_{l}", "cloud")
+            self.draw_sprite("mazemastery/cloud_s.png", self.cell_size, self.m, l, f"cloud_s_{l}", "cloud")
         
         # Left border
         for l in range(-self.offset_rows + 1, self.m):
-            self.draw_sprite("minosrecurse/cloud_w.png", self.cell_size, l, -self.offset_cols, f"cloud_w_{l}", "cloud")
+            self.draw_sprite("mazemastery/cloud_w.png", self.cell_size, l, -self.offset_cols, f"cloud_w_{l}", "cloud")
         
         # Right border
         for l in range(-self.offset_rows + 1, self.m):
-            self.draw_sprite("minosrecurse/cloud_e.png", self.cell_size, l, self.n, f"cloud_e_{l}", "cloud")
+            self.draw_sprite("mazemastery/cloud_e.png", self.cell_size, l, self.n, f"cloud_e_{l}", "cloud")
         
         # North
-        self.draw_sprite("minosrecurse/cloud_s.png", self.cell_size, i - 2, j, "cloud_s", "cloud")
-        self.draw_sprite("minosrecurse/cloud_s_seam.png", self.cell_size, i - 1, j, "cloud_s_seam", "cloud")
+        self.draw_sprite("mazemastery/cloud_s.png", self.cell_size, i - 2, j, "cloud_s", "cloud")
+        self.draw_sprite("mazemastery/cloud_s_seam.png", self.cell_size, i - 1, j, "cloud_s_seam", "cloud")
 
         # Nort East
-        self.draw_sprite("minosrecurse/cloud_ne_inner_corner.png", self.cell_size, i - 1, j + 1, "cloud_ne_inner_corner", "cloud")
-        self.draw_sprite("minosrecurse/cloud_ne_inner_corner_e.png", self.cell_size, i - 1, j + 2, "cloud_ne_inner_corner_e", "cloud")
-        self.draw_sprite("minosrecurse/cloud_ne_inner_corner_n.png", self.cell_size, i - 2, j + 1, "cloud_ne_inner_corner_n", "cloud")
+        self.draw_sprite("mazemastery/cloud_ne_inner_corner.png", self.cell_size, i - 1, j + 1, "cloud_ne_inner_corner", "cloud")
+        self.draw_sprite("mazemastery/cloud_ne_inner_corner_e.png", self.cell_size, i - 1, j + 2, "cloud_ne_inner_corner_e", "cloud")
+        self.draw_sprite("mazemastery/cloud_ne_inner_corner_n.png", self.cell_size, i - 2, j + 1, "cloud_ne_inner_corner_n", "cloud")
         
         # East
-        self.draw_sprite("minosrecurse/cloud_w.png", self.cell_size, i, j + 2, "cloud_w", "cloud")
+        self.draw_sprite("mazemastery/cloud_w.png", self.cell_size, i, j + 2, "cloud_w", "cloud")
 
         # South East
-        self.draw_sprite("minosrecurse/cloud_se_inner_corner.png", self.cell_size, i + 1, j + 1, "cloud_se_inner_corner", "cloud")
-        self.draw_sprite("minosrecurse/cloud_se_inner_corner_e.png", self.cell_size, i + 1, j + 2, "cloud_se_inner_corner_e", "cloud")
-        self.draw_sprite("minosrecurse/cloud_se_inner_corner_s.png", self.cell_size, i + 2, j + 1, "cloud_se_inner_corner_s", "cloud")
+        self.draw_sprite("mazemastery/cloud_se_inner_corner.png", self.cell_size, i + 1, j + 1, "cloud_se_inner_corner", "cloud")
+        self.draw_sprite("mazemastery/cloud_se_inner_corner_e.png", self.cell_size, i + 1, j + 2, "cloud_se_inner_corner_e", "cloud")
+        self.draw_sprite("mazemastery/cloud_se_inner_corner_s.png", self.cell_size, i + 2, j + 1, "cloud_se_inner_corner_s", "cloud")
 
         # South
-        self.draw_sprite("minosrecurse/cloud_n.png", self.cell_size, i + 2, j, "cloud_n", "cloud")
+        self.draw_sprite("mazemastery/cloud_n.png", self.cell_size, i + 2, j, "cloud_n", "cloud")
 
         # South West
-        self.draw_sprite("minosrecurse/cloud_sw_inner_corner.png", self.cell_size, i + 1, j - 1, "cloud_sw_inner_corner", "cloud")
-        self.draw_sprite("minosrecurse/cloud_sw_inner_corner_s.png", self.cell_size, i + 2, j - 1, "cloud_sw_inner_corner_s", "cloud")
-        self.draw_sprite("minosrecurse/cloud_sw_inner_corner_w.png", self.cell_size, i + 1, j - 2, "cloud_sw_inner_corner_w", "cloud")
+        self.draw_sprite("mazemastery/cloud_sw_inner_corner.png", self.cell_size, i + 1, j - 1, "cloud_sw_inner_corner", "cloud")
+        self.draw_sprite("mazemastery/cloud_sw_inner_corner_s.png", self.cell_size, i + 2, j - 1, "cloud_sw_inner_corner_s", "cloud")
+        self.draw_sprite("mazemastery/cloud_sw_inner_corner_w.png", self.cell_size, i + 1, j - 2, "cloud_sw_inner_corner_w", "cloud")
 
         # West
-        self.draw_sprite("minosrecurse/cloud_e.png", self.cell_size, i, j - 2, "cloud_e", "cloud")
+        self.draw_sprite("mazemastery/cloud_e.png", self.cell_size, i, j - 2, "cloud_e", "cloud")
 
         # North West
-        self.draw_sprite("minosrecurse/cloud_nw_inner_corner.png", self.cell_size, i - 1, j - 1, "cloud_nw_inner_corner", "cloud")
-        self.draw_sprite("minosrecurse/cloud_nw_inner_corner_w.png", self.cell_size, i - 1, j - 2, "cloud_nw_inner_corner_w", "cloud")
-        self.draw_sprite("minosrecurse/cloud_nw_inner_corner_n.png", self.cell_size, i - 2, j - 1, "cloud_nw_inner_corner_n", "cloud")
+        self.draw_sprite("mazemastery/cloud_nw_inner_corner.png", self.cell_size, i - 1, j - 1, "cloud_nw_inner_corner", "cloud")
+        self.draw_sprite("mazemastery/cloud_nw_inner_corner_w.png", self.cell_size, i - 1, j - 2, "cloud_nw_inner_corner_w", "cloud")
+        self.draw_sprite("mazemastery/cloud_nw_inner_corner_n.png", self.cell_size, i - 2, j - 1, "cloud_nw_inner_corner_n", "cloud")
 
     def draw_sprite(self, path, size, i, j, name, tag):
         """

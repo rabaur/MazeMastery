@@ -1,7 +1,7 @@
 import time
-from minosrecurse.solver import State
+from mazemastery.solver import State
 
-def pos():
+def get_pos():
     state = State()
     return state.pos
 
@@ -10,7 +10,7 @@ def minotaur():
     state = State()
     return state.minotaur_coords
 
-def move(new_pos):
+def set_pos(new_pos):
     state = State()
     if state.dead:
         return
@@ -49,6 +49,10 @@ def has_blue_gem(cell):
 def has_red_gem(cell):
     state = State()
     return cell in state.red_gem_coords
+
+def has_minotaur(cell):
+    state = State()
+    return cell == state.minotaur_coords
 
 
 def found_minotaur():

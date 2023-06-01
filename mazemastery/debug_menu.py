@@ -1,7 +1,7 @@
 import tkinter as tk
-from minosrecurse.styles import Styles
-import minosrecurse.api as api
-from minosrecurse.state import State
+from mazemastery.styles import Styles
+import mazemastery.api as api
+from mazemastery.state import State
 
 class DebugMenu:
     def __init__(self, renderer):
@@ -96,10 +96,10 @@ class DebugMenu:
             for key, button in {**self.api_buttons, **self.nav_buttons}.items():
 
                 # If there is already a blue gem or a red gem, putting another blue gem is not valid.
-                if key == "put_blue_gem" and (api.has_blue_gem(api.pos()) or api.has_red_gem(api.pos())):
+                if key == "put_blue_gem" and (api.has_blue_gem(api.get_pos()) or api.has_red_gem(api.get_pos())):
                     print("disabling put_blue_gem(pos) since there is already a blue gem or a red gem at pos")
                     button.configure(state=tk.DISABLED, relief=tk.FLAT)
-                elif key == "put_red_gem" and (api.has_red_gem(api.pos())):
+                elif key == "put_red_gem" and (api.has_red_gem(api.get_pos())):
                     button.configure(state=tk.DISABLED, relief=tk.FLAT)
                 elif key == "info":
                     button.configure(state=tk.NORMAL, relief=tk.FLAT)
@@ -111,12 +111,12 @@ class DebugMenu:
                 button.configure(state=tk.DISABLED, relief=tk.FLAT)
     
     def handle_put_red_gem_button(self):
-        api.put_red_gem(api.pos())
+        api.put_red_gem(api.get_pos())
         self.renderer.draw_gems()
         self.update_menu()
     
     def handle_put_blue_gem_button(self):
-        api.put_blue_gem(api.pos())
+        api.put_blue_gem(api.get_pos())
         self.renderer.draw_gems()
         self.update_menu()
     
@@ -124,7 +124,7 @@ class DebugMenu:
         self.renderer.debug = not self.renderer.debug
         state = State()
         if self.renderer.debug:
-            self.renderer.draw_cloud(api.pos())
+            self.renderer.draw_cloud(api.get_pos())
             self.renderer.draw_hearts(num=state.initial_lives, filled=state.lives)
         else:
             self.renderer.canvas.delete("cloud")
@@ -140,7 +140,7 @@ class DebugMenu:
         state = State()
         if state.dead:
             return
-        old_pos = api.pos()
+        old_pos = api.get_pos()
         new_pos = (old_pos[0] + dir[0], old_pos[1] + dir[1])
         if new_pos not in state.maze[old_pos]:
             state.lives -= 1
@@ -150,7 +150,7 @@ class DebugMenu:
             state.dead = True
         state.pos = new_pos
         # self.renderer.draw_path_segment(old_pos, api.pos())
-        self.renderer.draw_row_col_numbers(old_pos, api.pos())
-        self.renderer.draw_player(pos=api.pos(), old_pos=old_pos)
-        self.renderer.draw_cloud(api.pos())
+        self.renderer.draw_row_col_numbers(old_pos, api.get_pos())
+        self.renderer.draw_player(pos=api.get_pos(), old_pos=old_pos)
+        self.renderer.draw_cloud(api.get_pos())
         self.renderer.draw_hearts(num=state.initial_lives, filled=state.lives)

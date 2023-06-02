@@ -15,7 +15,6 @@ authors = [
 dependencies = [
     "Pillow",
 ]
-
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
@@ -26,3 +25,7 @@ classifiers = [
 
 [project.urls]
 "Homepage" = "https://github.com/rabaur/MazeMastery"
+
+
+[tool.hatch.build.targets.wheel.force-include]
+"./sprites" = "pkg"

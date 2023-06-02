@@ -90,7 +90,7 @@ class GUI:
 
         # For sprites
         self.sprites = {}
-        self.sprite_path = os.path.join(os.path.dirname(__file__), os.path.join("..", "sprites"))
+        self.sprite_path = os.path.join(os.path.dirname(__file__), os.path.join("sprites"))
         
 
     def initial_draw(self):

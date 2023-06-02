@@ -1,7 +1,7 @@
 import tkinter as tk
-from mazemastery.src.styles import Styles
-import mazemastery.src.api as api
-from mazemastery.src.state import State
+from mazemastery.styles import Styles
+import mazemastery.api as api
+from mazemastery.state import State
 
 class DebugMenu:
     def __init__(self, renderer):

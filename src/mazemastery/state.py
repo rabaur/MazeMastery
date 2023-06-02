@@ -1,4 +1,3 @@
-
 class State:
     """
     State is a singleton class that holds the current state of the maze solver,
@@ -25,7 +24,7 @@ class State:
         initial_lives=5,
         dead=False,
         *args,
-        **kwargs
+        **kwargs,
     ):
         if cls._self is None:
             cls._self = super(State, cls).__new__(cls, *args, **kwargs)
@@ -55,7 +54,7 @@ class State:
         lives=5,
         dead=False,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
 
@@ -110,7 +109,7 @@ class State:
     @found.setter
     def found(self, new):
         self.__found = new
-    
+
     @property
     def lives(self):
         return self.__lives
@@ -126,11 +125,11 @@ class State:
     @initial_lives.setter
     def initial_lives(self, new):
         self.__initial_lives = new
-    
+
     @property
     def dead(self):
         return self.__dead
-    
+
     @dead.setter
     def dead(self, new):
         self.__dead = new

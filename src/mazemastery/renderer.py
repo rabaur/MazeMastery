@@ -1,9 +1,9 @@
 import tkinter as tk
 import random
 import math
-from mazemastery.src.maze_utils import get_maze_size
-from mazemastery.src.styles import Colors
-from mazemastery.src.debug_menu import DebugMenu
+from mazemastery.maze import get_maze_size
+from mazemastery.styles import Colors
+from mazemastery.debug_menu import DebugMenu
 from typing import List, Tuple, Dict
 from PIL import ImageTk, Image
 import os

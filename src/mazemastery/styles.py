@@ -9,7 +9,7 @@ class Colors:
     brown_base = "#81755a"
     brown_highlight = "#b4a993"
     brown_border = "#544d3b"
-    cloud="#eff4f5"
+    cloud = "#eff4f5"
     blues = {
         0: "#0069aa",
         1: "#0098dc",

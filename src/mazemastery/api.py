@@ -71,7 +71,7 @@ def found_minotaur():
     state.found = True
 
 
-def was_found():
+def was_minotaur_found():
     state = State()
     return state.found
 

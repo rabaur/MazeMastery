@@ -1,14 +1,14 @@
 from mazemastery.api import *
 
 def level1():
-    while (not was_found()):
+    while (not was_minotaur_found()):
         i, j = get_pos()
         neighbor = (i, j + 1)
         set_pos(neighbor)
 
 
 def level2():
-    while (not was_found()):
+    while (not was_minotaur_found()):
         i, j = get_pos()
         neighbor = (i, j + 1)
         set_pos(neighbor)
@@ -16,7 +16,7 @@ def level2():
             found_minotaur()
 
 def level3():
-    while (not was_found()):
+    while (not was_minotaur_found()):
         put_blue_gem(get_pos())
         all_neighbors = get_neighbors(get_pos())
         neighbors = []
@@ -29,7 +29,7 @@ def level3():
             found_minotaur()
 
 def level4():
-    while (not was_found()):
+    while (not was_minotaur_found()):
         put_blue_gem(get_pos())
         all_neighbors = get_neighbors(get_pos())
         neighbors = []
@@ -50,7 +50,7 @@ def level4():
 
 def level5():
     stack = [get_pos()]
-    while (not was_found()):
+    while (not was_minotaur_found()):
         put_blue_gem(get_pos())
         all_neighbors = get_neighbors(get_pos())
         neighbors = []
@@ -74,7 +74,7 @@ def level6():
     for neighbor in all_neighbors:
         if not has_blue_gem(neighbor):
             old_pos = get_pos()
-            if was_found(): return
+            if was_minotaur_found(): return
             set_pos(neighbor)
             if has_minotaur(neighbor):
                 found_minotaur()

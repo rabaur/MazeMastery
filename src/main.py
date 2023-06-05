@@ -49,6 +49,7 @@ def level4():
 
 
 def level5():
+    stack = [get_pos()]
     while (not was_found()):
         put_blue_gem(get_pos())
         all_neighbors = get_neighbors(get_pos())
@@ -58,9 +59,9 @@ def level5():
                 neighbors.append(neighbor)
         if neighbors == []:
             put_red_gem(get_pos())
-            neighbor = pop()
+            neighbor = stack.pop()
         else:
-            push(get_pos())
+            stack.append(get_pos())
             neighbor = neighbors[0]
         set_pos(neighbor)
         if has_minotaur(neighbor):

@@ -79,15 +79,6 @@ def is_neighbor(pos, neighbor):
     state = State()
     return neighbor in state.maze[pos]
 
-def push(pos):
-    state = State()
-    state.stack.append(pos)
-
-def pop():
-    state = State()
-    popped = state.stack.pop()
-    return popped
-
 def are_neighbors(pos1, pos2):
     state = State()
     return pos2 in state.maze[pos1]

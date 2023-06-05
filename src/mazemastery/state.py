@@ -23,6 +23,7 @@ class State:
         found=False,
         initial_lives=5,
         dead=False,
+        level=1,
         *args,
         **kwargs,
     ):
@@ -39,6 +40,7 @@ class State:
             cls._self.__initial_lives = initial_lives
             cls._self.__lives = initial_lives
             cls._self.__dead = dead
+            cls._self.__level = level
         return cls._self
 
     def __init__(
@@ -53,6 +55,7 @@ class State:
         found=False,
         lives=5,
         dead=False,
+        level=1,
         *args,
         **kwargs,
     ):
@@ -133,3 +136,11 @@ class State:
     @dead.setter
     def dead(self, new):
         self.__dead = new
+
+    @property
+    def level(self):
+        return self.__level
+    
+    @level.setter
+    def level(self, new):
+        self.__level = new

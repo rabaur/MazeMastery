@@ -81,4 +81,4 @@ def level6():
             put_red_gem(get_pos())
             set_pos(old_pos)
 
-run(5, level6, delay=1, cell_size=20, rows=30, cols=30)
+run(5, level5, delay=1, cell_size=20, rows=30, cols=30)

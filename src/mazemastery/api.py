@@ -66,14 +66,14 @@ def has_minotaur(cell):
     return cell == state.minotaur_coords
 
 
-def found_minotaur():
+def stop():
     state = State()
     state.found = True
 
 
-def was_minotaur_found():
+def is_searching():
     state = State()
-    return state.found
+    return not state.found
 
 def is_neighbor(pos, neighbor):
     state = State()

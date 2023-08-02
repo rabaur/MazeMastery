@@ -10,6 +10,7 @@ def get_pos():
     state = State()
     return state.pos
 
+
 def minotaur():
     state = State()
     return state.minotaur_coords
@@ -20,7 +21,6 @@ def set_pos(new_pos):
     if state.dead:
         return
     if new_pos not in state.maze[state.pos]:
-
         # We don't subtract a life on level 1
         if state.level != 1:
             state.lives -= 1
@@ -74,17 +74,21 @@ def is_searching():
     state = State()
     return not state.found
 
+
 def is_neighbor(pos, neighbor):
     state = State()
     return neighbor in state.maze[pos]
+
 
 def are_neighbors(pos1, pos2):
     state = State()
     return pos2 in state.maze[pos1]
 
+
 def get_neighbors(pos):
     state = State()
     return state.maze[pos]
+
 
 def run(level, solve, rows=10, cols=10, cell_size=50, delay=1000, seed=None):
     random.seed(seed)

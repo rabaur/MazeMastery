@@ -18,9 +18,7 @@ class DebugMenu:
                 text="put_blue_gem(pos)",
                 command=self.handle_put_blue_gem_button,
             ),
-            "push": tk.Button(renderer.root, text="push(pos)"),
-            "pop": tk.Button(renderer.root, text="pop()"),
-            "found_minotaur": tk.Button(renderer.root, text="found_minotaur()"),
+            "found_minotaur": tk.Button(renderer.root, text="stop()"),
         }
 
         # These buttons are used to navigate the maze in debug mode
@@ -29,14 +27,14 @@ class DebugMenu:
             "left": tk.Button(renderer.root, text="←", command=lambda: self.handle_nav_button((0, -1))),
             "right": tk.Button(renderer.root, text="→", command=lambda: self.handle_nav_button((0, 1))),
             "down": tk.Button(renderer.root, text="↓", command=lambda: self.handle_nav_button((1, 0))),
-            "info": tk.Button(renderer.root, text="move", state=tk.DISABLED),
+            "info": tk.Button(renderer.root, text="set_pos", state=tk.DISABLED),
         }
 
         # These labels are used to display the current state of the maze
         self.state_labels = {
             "has_red_gem": tk.Label(renderer.root, text="has_red_gem(pos)"),
             "has_blue_gem": tk.Label(renderer.root, text="has_blue_gem(pos)"),
-            "was_found": tk.Label(renderer.root, text="was_found()"),
+            "was_found": tk.Label(renderer.root, text="is_searching()"),
         }
         self.max_button_width = max(
             [len(button["text"]) for button in self.api_buttons.values()]

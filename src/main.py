@@ -18,11 +18,9 @@ def level3():
     while (is_searching()):
         put_blue_gem(get_pos())
         all_neighbors = get_neighbors(get_pos())
-        neighbors = []
         for neighbor in all_neighbors:
             if not has_blue_gem(neighbor):
-                neighbors.append(neighbor)
-        new_pos = neighbors[0]
+                new_pos = neighbor
         set_pos(new_pos)
         if has_minotaur(new_pos):
             stop()
@@ -82,4 +80,4 @@ def level6():
             put_red_gem(get_pos())
             set_pos(old_pos)
 
-run(6, level6, delay=1, cell_size=100, rows=10, cols=10)
+run(3, level3, delay=1000, cell_size=100, rows=5, cols=11)

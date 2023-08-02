@@ -10,7 +10,6 @@ def get_pos():
     state = State()
     return state.pos
 
-
 def minotaur():
     state = State()
     return state.minotaur_coords

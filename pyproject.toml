@@ -4,13 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mazemastery"
-version = "0.0.4"
+version = "0.1.0"
 description = "MazeMastery is a Python framework for teaching maze traversal to high school students. It helps students develop abstraction skills by providing a didactic tool. They can test their algorithms against randomized test cases of increasing complexity. The framework facilitates learning analysis and conceptual challenges. MazeMastery is an open-source project for scientists and educators."
 authors = [
     {name="Raphaël Baur", email="rabaur@ethz.ch"},
     {name="Jens Hartmann", email="s4jehart@uni-trier.de"},
     {name="Jaqueline Staub", email="staub@uni-trier.de"},
-    {name="Martin Löhnertz", email="loehnert@uni-trier.de"},
 ]
 dependencies = [
     "Pillow",

@@ -8,7 +8,7 @@ def solve():
         if not has_blue_gem(neighbor):
             new_pos = neighbor
             old_pos = get_pos()
-            if has_minotaur(get_pos()) or found_minotaur:
+            if has_minotaur() or found_minotaur:
                 found_minotaur = True
                 return
             set_pos(new_pos)

@@ -62,9 +62,9 @@ def has_red_gem(cell):
     return cell in state.red_gem_coords
 
 
-def has_minotaur(cell):
+def has_minotaur():
     state = State()
-    return cell == state.minotaur_coords
+    return state.pos == state.minotaur_coords
 
 
 def is_neighbor(pos, neighbor):

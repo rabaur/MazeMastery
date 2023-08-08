@@ -36,18 +36,20 @@ def set_pos(new_pos):
         time.sleep(state.renderer.delay / 1000)
 
 
-def put_blue_gem(cell):
+def put_blue_gem():
     state = State()
-    if cell not in state.blue_gem_coords:
-        state.renderer.push_blue_gem_buffer(cell)
-        state.blue_gem_coords.append(cell)
+    pos = state.pos
+    if pos not in state.blue_gem_coords:
+        state.renderer.push_blue_gem_buffer(pos)
+        state.blue_gem_coords.append(pos)
 
 
-def put_red_gem(cell):
+def put_red_gem():
     state = State()
-    if cell not in state.red_gem_coords:
-        state.renderer.push_red_gem_buffer(cell)
-        state.red_gem_coords.append(cell)
+    pos = state.pos
+    if pos not in state.red_gem_coords:
+        state.renderer.push_red_gem_buffer(pos)
+        state.red_gem_coords.append(pos)
 
 
 def has_blue_gem(cell):
@@ -65,16 +67,6 @@ def has_minotaur(cell):
     return cell == state.minotaur_coords
 
 
-def stop():
-    state = State()
-    state.found = True
-
-
-def is_searching():
-    state = State()
-    return not state.found
-
-
 def is_neighbor(pos, neighbor):
     state = State()
     return neighbor in state.maze[pos]
@@ -85,8 +77,9 @@ def are_neighbors(pos1, pos2):
     return pos2 in state.maze[pos1]
 
 
-def get_neighbors(pos):
+def get_neighbors():
     state = State()
+    pos = state.pos
     return state.maze[pos]
 
 

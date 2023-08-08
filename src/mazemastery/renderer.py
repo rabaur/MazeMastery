@@ -102,6 +102,7 @@ class GUI:
         self.draw_maze()
         self.draw_hearts(num=self.initial_lives, filled=self.initial_lives)
         self.draw_minotaur()
+        self.draw_player(self.initial_pos, self.initial_pos)
         self.draw_initial_row_col_numbers()
 
     def update_draw(self, old_pos, curr_pos, lives):
@@ -516,12 +517,21 @@ class GUI:
         # Cover empty cells.
         self.draw_grass()
 
-    def draw_player(self, old_pos, pos):
+    def draw_player(self, prev_pos: Tuple[int, int], curr_pos : Tuple[int, int]) -> None:
         """
-        Render the player using tkinter.
+        Render the player.
+
+        Args:
+            prev_pos: Previous position of the player. Is needed to compute the
+                direction of the movement of the player to render the correct 
+                sprite.
+            curr_pos: The position the player should be rendered at.
+        
+        Returns:
+            None
         """
         self.canvas.delete("player")
-        i, j = pos
+        i, j = curr_pos
         i += self.offset_rows
         j += self.offset_cols
 
@@ -537,11 +547,11 @@ class GUI:
         )
 
         file_name = ""
-        if old_pos[0] < pos[0]:
+        if prev_pos[0] < curr_pos[0]:
             file_name = "warrior_down.png"
-        elif old_pos[0] > pos[0]:
+        elif prev_pos[0] > curr_pos[0]:
             file_name = "warrior_up.png"
-        elif old_pos[1] < pos[1]:
+        elif prev_pos[1] < curr_pos[1]:
             file_name = "warrior_right.png"
         else:
             file_name = "warrior_left.png"

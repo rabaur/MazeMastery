@@ -2,7 +2,7 @@ from mazemastery.api import *
 
 def solve():
     stack = [get_pos()]
-    while (not has_minotaur()):
+    while not has_minotaur():
         put_blue_gem()
         found_neighbor = False
         for neighbor in get_neighbors():

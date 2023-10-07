@@ -640,7 +640,7 @@ class GUI:
             outline="",
         )
 
-        self.draw_sprite("minotaur.png", self.cell_size, i, j, "minotaur", use_offset=False, dx=-self.cell_size // 4)
+        self.draw_sprite("minotaur.png", self.cell_size, i, j, "minotaur", use_offset=False, dy=-self.cell_size // 4)
 
     def draw_path_segment(self, source, target):
         self.canvas.create_line(

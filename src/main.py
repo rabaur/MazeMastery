@@ -6,4 +6,4 @@ from level4 import solve as level4
 from level5 import solve as level5
 from level6 import solve as level6
 
-run(6, level6, delay=100, cell_size=100, rows=11, cols=11)
+run(1, level1, delay=100, cell_size=100, rows=11, cols=11)

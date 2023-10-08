@@ -149,6 +149,6 @@ class DebugMenu:
         state.pos = new_pos
         # self.renderer.draw_path_segment(old_pos, api.pos())
         self.renderer.draw_row_col_numbers(old_pos, api.get_pos())
-        self.renderer.draw_player(pos=api.get_pos(), old_pos=old_pos)
+        self.renderer.draw_player(curr_pos=api.get_pos(), prev_pos=old_pos)
         self.renderer.draw_cloud(api.get_pos())
         self.renderer.draw_hearts(num=state.initial_lives, filled=state.lives)

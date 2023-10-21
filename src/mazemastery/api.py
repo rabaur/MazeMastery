@@ -21,8 +21,11 @@ def set_pos(new_pos):
     if state.dead:
         return
     if new_pos not in state.maze[state.pos]:
+        print(f"Invalid move: {new_pos} is not a neighbor of {state.pos}")
         # We don't subtract a life on level 1
+        print(f"{state.level} state.level")
         if state.level != 1:
+            print("You lose a life!")
             state.lives -= 1
         new_pos = state.pos
     old_pos = state.pos
@@ -104,7 +107,7 @@ def run(level, solve, rows=10, cols=10, cell_size=50, delay=1000, seed=None):
         maze = create_maze(rows, cols, (0, 0), 0.2)
         minotaur_coords = (rows - 4, cols - 4)
     renderer = GUI(maze, minotaur_coords, cell_size=cell_size, delay=delay)
-    State(maze=maze, renderer=renderer, minotaur_coords=minotaur_coords)
+    State(maze=maze, renderer=renderer, minotaur_coords=minotaur_coords, level=level)
     renderer.initial_draw()
     solution_thread = threading.Thread(target=solve, name="solution_thread")
     solution_thread.start()

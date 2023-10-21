@@ -1,21 +1,36 @@
 import random
 import math
 
+
+def randomize_neighbor_order(maze):
+    """
+    Randomizes the order of neighbors of each cell in the maze to
+    avoid users relying on a specific order.
+    """
+    for node, neighbors in maze.items():
+        random.shuffle(neighbors)
+        maze[node] = neighbors
+    return maze
+
+
 def get_maze_size(maze):
     m = max(i for i, _ in maze.keys()) + 1  # Number of rows
     n = max(j for _, j in maze.keys()) + 1  # Number of columns
     return m, n
+
 
 def create_corridor(length):
     """
     Generates a maze of length `length` that is a single path.
     """
     maze = {}
-    for j in range(1, length-1):
-        maze[(0, j)] = [(0, j+1), (0, j-1)]
+    for j in range(1, length - 1):
+        maze[(0, j)] = [(0, j + 1), (0, j - 1)]
     maze[(0, 0)] = [(0, 1)]
-    maze[(0, length-1)] = [(0, length-2)]
+    maze[(0, length - 1)] = [(0, length - 2)]
+    maze = randomize_neighbor_order(maze)
     return maze
+
 
 def create_SAW(rows, cols, temp=0.01):
     """
@@ -31,7 +46,7 @@ def create_SAW(rows, cols, temp=0.01):
 
         # Count number of unvisited cells for each of the possible directions
         num_unvisited = [0, 0, 0, 0]
-        for (ii, jj) in path:
+        for ii, jj in path:
             if ii < i:
                 num_unvisited[0] += 1
             if ii > i:
@@ -41,7 +56,11 @@ def create_SAW(rows, cols, temp=0.01):
             if jj > j:
                 num_unvisited[2] += 1
         potential_neighbors = [(i + di, j + dj) for di, dj in offsets]
-        neighbors_counts = [(n, z) for (n, z) in zip(potential_neighbors, num_unvisited) if n[0] >= 0 and n[0] < rows and n[1] >= 0 and n[1] < cols]
+        neighbors_counts = [
+            (n, z)
+            for (n, z) in zip(potential_neighbors, num_unvisited)
+            if n[0] >= 0 and n[0] < rows and n[1] >= 0 and n[1] < cols
+        ]
         neighbors_counts = [(n, z) for (n, z) in neighbors_counts if n not in path]
         if len(neighbors_counts) == 0:
             break
@@ -51,10 +70,12 @@ def create_SAW(rows, cols, temp=0.01):
         pos = weighted_choice(neighbors, probs)
     maze = {(i, j): [] for i in range(rows) for j in range(cols)}
     for i in range(1, len(path) - 1):
-        maze[path[i]] = [path[i-1], path[i+1]]
+        maze[path[i]] = [path[i - 1], path[i + 1]]
     maze[path[0]] = [path[1]]
     maze[path[-1]] = [path[-2]]
+    maze = randomize_neighbor_order(maze)
     return maze, path
+
 
 def softmax(vals, temp=0.5):
     """
@@ -65,6 +86,7 @@ def softmax(vals, temp=0.5):
     exp_vals = [math.exp(temp * v) for v in red_vals]
     sum_exp_vals = sum(exp_vals)
     return [v / (sum_exp_vals) for v in exp_vals]
+
 
 def weighted_choice(choices, probs):
     """
@@ -78,17 +100,19 @@ def weighted_choice(choices, probs):
             return c
     return choices[-1]
 
+
 def count_neighbors_in_2x2_subgraph(maze, bi, bj):
     """
     Count number of neighbors within 2x2 subgraph whose North-West cell
     is (bi, bj).
     """
     count = 0
-    count += (bi, bj + 1) in maze[(bi, bj)] # East of North-West
-    count += (bi + 1, bj) in maze[(bi, bj)] # South of North-West
-    count += (bi, bj + 1) in maze[(bi + 1, bj + 1)] # North of South-East
-    count += (bi + 1, bj) in maze[(bi + 1, bj + 1)] # West of South-East cell
+    count += (bi, bj + 1) in maze[(bi, bj)]  # East of North-West
+    count += (bi + 1, bj) in maze[(bi, bj)]  # South of North-West
+    count += (bi, bj + 1) in maze[(bi + 1, bj + 1)]  # North of South-East
+    count += (bi + 1, bj) in maze[(bi + 1, bj + 1)]  # West of South-East cell
     return count
+
 
 def creates_2x2_hole(maze, c0, c1):
     """
@@ -99,7 +123,7 @@ def creates_2x2_hole(maze, c0, c1):
     """
     c0, c1 = sorted([c0, c1])
 
-    if (c0[0] == c1[0]):
+    if c0[0] == c1[0]:
         # Rows agree, so we would remove a vertical wall.
 
         # Check if removal of this wall would create a hole above and below.
@@ -157,7 +181,7 @@ def create_maze(rows, cols, start, p_remove=0.9):
         for neighbor in neighbors:
             prev[neighbor] = current
             stack.append(neighbor)
-      
+
     for i in range(1, rows - 1):
         for j in range(1, cols - 1):
             all_neighbors = [(i + di, j + dj) for di, dj in offsets]
@@ -169,11 +193,14 @@ def create_maze(rows, cols, start, p_remove=0.9):
                     # Remove wall (by connecting neighbors)
                     maze[(i, j)].append(wall)
                     maze[wall].append((i, j))
-    
+
     for node, neighbors in maze.items():
-        maze[node] = sorted(list(set(neighbors)))
+        maze[node] = list(set(neighbors))
+
+    maze = randomize_neighbor_order(maze)
 
     return maze
+
 
 if __name__ == "__main__":
     maze = create_maze(10, 10, (0, 0))

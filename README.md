@@ -1,7 +1,7 @@
 # How to run
 This is `mazemastery`, a Python package that allows you to conquer mazes of various shapes using the power of coding!
 
-You can read all about `mazemastery` in great length in [our paper](linktoourpaper). This short guide covers only the basics and will help you to set up `mazemastery` on your device as fast as possible.
+You can read all about `mazemastery` in great length in [our paper](https://zenodo.org/records/8431922). This short guide covers only the basics and will help you to set up `mazemastery` on your device as fast as possible.
 
 You can use your favourite IDE (or text editor), but we assume you have set up a Python 3 (and `pip`) with VS Code.
 

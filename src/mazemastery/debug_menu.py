@@ -141,7 +141,7 @@ class DebugMenu:
 
     def handle_nav_button(self, dir):
         """
-        We cannot use the api call 'move' here because if otherwise the current
+        We cannot use the api call 'set_pos' here because if otherwise the current
         thread will run into the while loop that only resolves once we leave
         debug mode. Leaving debug mode will not possible anymore because the
         current thread is blocked.
@@ -163,3 +163,4 @@ class DebugMenu:
         self.renderer.draw_player(curr_pos=api.get_pos(), prev_pos=old_pos)
         self.renderer.draw_cloud(api.get_pos())
         self.renderer.draw_hearts(num=state.initial_lives, filled=state.lives)
+        self.update_menu()

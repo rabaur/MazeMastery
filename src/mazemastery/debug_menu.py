@@ -3,9 +3,9 @@ from mazemastery.styles import Styles
 import mazemastery.api as api
 from mazemastery.state import State
 
+
 class DebugMenu:
     def __init__(self, renderer):
-
         # These buttons are used to modify the maze state in debug mode
         self.api_buttons = {
             "put_red_gem": tk.Button(
@@ -23,10 +23,18 @@ class DebugMenu:
 
         # These buttons are used to navigate the maze in debug mode
         self.nav_buttons = {
-            "up": tk.Button(renderer.root, text="↑", command=lambda: self.handle_nav_button((-1, 0))),
-            "left": tk.Button(renderer.root, text="←", command=lambda: self.handle_nav_button((0, -1))),
-            "right": tk.Button(renderer.root, text="→", command=lambda: self.handle_nav_button((0, 1))),
-            "down": tk.Button(renderer.root, text="↓", command=lambda: self.handle_nav_button((1, 0))),
+            "up": tk.Button(
+                renderer.root, text="↑", command=lambda: self.handle_nav_button((-1, 0))
+            ),
+            "left": tk.Button(
+                renderer.root, text="←", command=lambda: self.handle_nav_button((0, -1))
+            ),
+            "right": tk.Button(
+                renderer.root, text="→", command=lambda: self.handle_nav_button((0, 1))
+            ),
+            "down": tk.Button(
+                renderer.root, text="↓", command=lambda: self.handle_nav_button((1, 0))
+            ),
             "info": tk.Button(renderer.root, text="set_pos", state=tk.DISABLED),
         }
 
@@ -78,9 +86,9 @@ class DebugMenu:
             label.configure(**Styles.label_style(renderer.cell_size))
             label.grid(row=row_idx, column=1, columnspan=3, sticky=tk.W)
             row_idx += 1
-        
+
         self.renderer = renderer
-    
+
     def update_menu(self):
         """
         Beware - this can only be called after initialization of the renderer
@@ -92,10 +100,13 @@ class DebugMenu:
         if self.renderer.debug:
             self.debug_button.configure(text="Exit Debug Mode")
             for key, button in {**self.api_buttons, **self.nav_buttons}.items():
-
                 # If there is already a blue gem or a red gem, putting another blue gem is not valid.
-                if key == "put_blue_gem" and (api.has_blue_gem(api.get_pos()) or api.has_red_gem(api.get_pos())):
-                    print("disabling put_blue_gem(pos) since there is already a blue gem or a red gem at pos")
+                if key == "put_blue_gem" and (
+                    api.has_blue_gem(api.get_pos()) or api.has_red_gem(api.get_pos())
+                ):
+                    print(
+                        "disabling put_blue_gem(pos) since there is already a blue gem or a red gem at pos"
+                    )
                     button.configure(state=tk.DISABLED, relief=tk.FLAT)
                 elif key == "put_red_gem" and (api.has_red_gem(api.get_pos())):
                     button.configure(state=tk.DISABLED, relief=tk.FLAT)
@@ -107,17 +118,17 @@ class DebugMenu:
             self.debug_button.configure(text="Debug")
             for key, button in {**self.api_buttons, **self.nav_buttons}.items():
                 button.configure(state=tk.DISABLED, relief=tk.FLAT)
-    
+
     def handle_put_red_gem_button(self):
-        api.put_red_gem(api.get_pos())
+        api.put_red_gem()
         self.renderer.draw_gems()
         self.update_menu()
-    
+
     def handle_put_blue_gem_button(self):
-        api.put_blue_gem(api.get_pos())
+        api.put_blue_gem()
         self.renderer.draw_gems()
         self.update_menu()
-    
+
     def handle_debug_button(self):
         self.renderer.debug = not self.renderer.debug
         state = State()
@@ -131,7 +142,7 @@ class DebugMenu:
     def handle_nav_button(self, dir):
         """
         We cannot use the api call 'move' here because if otherwise the current
-        thread will run into the while loop that only resolves once we leave 
+        thread will run into the while loop that only resolves once we leave
         debug mode. Leaving debug mode will not possible anymore because the
         current thread is blocked.
         """

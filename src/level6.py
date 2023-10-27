@@ -1,7 +1,7 @@
 from mazemastery.api import *
 
 found_minotaur = False
-def solve():
+def solve() -> None:
     global found_minotaur
     put_blue_gem()
     for neighbor in get_neighbors():

@@ -1,6 +1,7 @@
 from mazemastery.api import *
 
-def solve():
+
+def solve() -> None:
     while not has_minotaur():
         put_blue_gem()
         found_neighbor = False

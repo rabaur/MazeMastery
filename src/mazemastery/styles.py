@@ -1,5 +1,7 @@
 import tkinter as tk
 
+from mazemastery.types import ColorDict
+
 
 class Colors:
     green_base = "#4b9a49"
@@ -10,7 +12,7 @@ class Colors:
     brown_highlight = "#b4a993"
     brown_border = "#544d3b"
     cloud = "#eff4f5"
-    blues = {
+    blues: ColorDict = {
         0: "#0069aa",
         1: "#0098dc",
         2: "#00cdf9",
@@ -18,7 +20,7 @@ class Colors:
         4: "#ffffff",
         "main": "#0cf1ff",
     }
-    reds = {
+    reds: ColorDict = {
         -1: "#421a1e",
         0: "#9d2231",
         1: "#e12937",
@@ -31,7 +33,7 @@ class Colors:
 
 class Styles:
     @staticmethod
-    def active_button_style(cell_size):
+    def active_button_style(cell_size: int) -> dict:
         return {
             "font": f"Courier {cell_size // 4}",
             "height": 1,
@@ -48,7 +50,7 @@ class Styles:
         }
 
     @staticmethod
-    def nav_button_style(cell_size):
+    def nav_button_style(cell_size: int) -> dict:
         return {
             "font": f"Courier {cell_size // 4}",
             "height": 1,
@@ -61,7 +63,7 @@ class Styles:
         }
 
     @staticmethod
-    def label_style(cell_size):
+    def label_style(cell_size: int) -> dict:
         return {
             "font": f"Courier {cell_size // 4}",
             "height": 1,
@@ -72,7 +74,7 @@ class Styles:
         }
 
     @staticmethod
-    def debug_button_style(cell_size):
+    def debug_button_style(cell_size: int) -> dict:
         return {
             "font": f"Arial {cell_size // 4}",
             "height": 1,

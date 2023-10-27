@@ -1,3 +1,8 @@
+from typing import Any
+
+from mazemastery.types import Coord, Maze, Renderer
+
+
 class State:
     """
     State is a singleton class that holds the current state of the maze solver,
@@ -11,23 +16,30 @@ class State:
 
     _self = None
 
+    # Type declarations where mypy can't figure it out on its own
+    __maze: Maze
+    __renderer: Renderer
+    __minotaur_coords: Coord
+
     def __new__(
         cls,
-        maze=None,
-        renderer=None,
-        start_pos=(0, 0),
-        minotaur_coords=(0, 0),
-        blue_gem_coords=[],
-        red_gem_coords=[],
-        stack=[],
-        found=False,
-        initial_lives=5,
-        dead=False,
-        level=1,
-        *args,
-        **kwargs,
-    ):
+        maze: Maze | None=None,
+        renderer: Renderer | None=None,
+        start_pos: Coord=(0, 0),
+        minotaur_coords: Coord=(0, 0),
+        blue_gem_coords: list[Coord]=[],
+        red_gem_coords: list[Coord]=[],
+        stack: list[Coord]=[],
+        found: bool=False,
+        initial_lives: int=5,
+        dead: bool=False,
+        level: int=1,
+        *args: Any,
+        **kwargs: Any,
+    ) -> "State":
         if cls._self is None:
+            if maze is None or renderer is None:
+                raise RuntimeError("First state must be initialized with a maze and a renderer")
             cls._self = super(State, cls).__new__(cls, *args, **kwargs)
             cls._self.__maze = maze
             cls._self.__renderer = renderer
@@ -45,102 +57,102 @@ class State:
 
     def __init__(
         self,
-        maze=None,
-        renderer=None,
-        start_pos=(0, 0),
-        minotaur_coords=(0, 0),
-        blue_gem_coords=[],
-        red_gem_coords=[],
-        stack=[],
-        found=False,
-        lives=5,
-        dead=False,
-        level=1,
-        *args,
-        **kwargs,
+        maze: Maze | None=None,
+        renderer: Renderer | None=None,
+        start_pos: Coord=(0, 0),
+        minotaur_coords: Coord=(0, 0),
+        blue_gem_coords: list[Coord]=[],
+        red_gem_coords: list[Coord]=[],
+        stack: list[Coord]=[],
+        found: bool=False,
+        initial_lives: int=5,
+        dead: bool=False,
+        level: int=1,
+        *args: Any,
+        **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
 
     @property
-    def maze(self):
+    def maze(self) -> Maze:
         return self.__maze
 
     @property
-    def renderer(self):
+    def renderer(self) -> Renderer:
         return self.__renderer
 
     @property
-    def pos(self):
+    def pos(self) -> Coord:
         return self.__pos
 
     @pos.setter
-    def pos(self, new):
+    def pos(self, new: Coord) -> None:
         self.__pos = new
 
     @property
-    def minotaur_coords(self):
+    def minotaur_coords(self) -> Coord:
         return self.__minotaur_coords
 
     @property
-    def blue_gem_coords(self):
+    def blue_gem_coords(self) -> list[Coord]:
         return self.__blue_gem_coords
 
     @blue_gem_coords.setter
-    def blue_gem_coords(self, new):
+    def blue_gem_coords(self, new: list[Coord]) -> None:
         self.__blue_gem_coords = new
 
     @property
-    def red_gem_coords(self):
+    def red_gem_coords(self) -> list[Coord]:
         return self.__red_gem_coords
 
     @red_gem_coords.setter
-    def red_gem_coords(self, new):
+    def red_gem_coords(self, new: list[Coord]) -> None:
         self.__red_gem_coords = new
 
     @property
-    def stack(self):
+    def stack(self) -> list[Coord]:
         return self.__stack
 
     @stack.setter
-    def stack(self, new):
+    def stack(self, new: list[Coord]) -> None:
         self.__stack = new
 
     @property
-    def found(self):
+    def found(self) -> bool:
         return self.__found
 
     @found.setter
-    def found(self, new):
+    def found(self, new: bool) -> None:
         self.__found = new
 
     @property
-    def lives(self):
+    def lives(self) -> int:
         return self.__lives
 
     @lives.setter
-    def lives(self, new):
+    def lives(self, new: int) -> None:
         self.__lives = new
 
     @property
-    def initial_lives(self):
+    def initial_lives(self) -> int:
         return self.__initial_lives
 
     @initial_lives.setter
-    def initial_lives(self, new):
+    def initial_lives(self, new: int) -> None:
         self.__initial_lives = new
 
     @property
-    def dead(self):
+    def dead(self) -> bool:
         return self.__dead
 
     @dead.setter
-    def dead(self, new):
+    def dead(self, new: bool) -> None:
         self.__dead = new
 
     @property
-    def level(self):
+    def level(self) -> int:
         return self.__level
     
     @level.setter
-    def level(self, new):
+    def level(self, new: int) -> None:
         self.__level = new

@@ -1,8 +1,10 @@
-import random
 import math
+import random
+
+from mazemastery.types import Coord, Maze
 
 
-def randomize_neighbor_order(maze):
+def randomize_neighbor_order(maze: Maze) -> Maze:
     """
     Randomizes the order of neighbors of each cell in the maze to
     avoid users relying on a specific order.
@@ -13,17 +15,17 @@ def randomize_neighbor_order(maze):
     return maze
 
 
-def get_maze_size(maze):
+def get_maze_size(maze: Maze) -> tuple[int, int]:
     m = max(i for i, _ in maze.keys()) + 1  # Number of rows
     n = max(j for _, j in maze.keys()) + 1  # Number of columns
     return m, n
 
 
-def create_corridor(length):
+def create_corridor(length: int) -> Maze:
     """
     Generates a maze of length `length` that is a single path.
     """
-    maze = {}
+    maze: Maze = {}
     for j in range(1, length - 1):
         maze[(0, j)] = [(0, j + 1), (0, j - 1)]
     maze[(0, 0)] = [(0, 1)]
@@ -32,7 +34,7 @@ def create_corridor(length):
     return maze
 
 
-def create_SAW(rows, cols, temp=0.01):
+def create_SAW(rows: int, cols: int, temp: float=0.01) -> tuple[Maze, list[Coord]]:
     """
     Generates a maze of size `rows` x `cols` that contains a self-avoiding walk.
     """
@@ -68,7 +70,7 @@ def create_SAW(rows, cols, temp=0.01):
         counts = [z for (_, z) in neighbors_counts]
         probs = softmax(counts, temp=-temp)
         pos = weighted_choice(neighbors, probs)
-    maze = {(i, j): [] for i in range(rows) for j in range(cols)}
+    maze: Maze = {(i, j): [] for i in range(rows) for j in range(cols)}
     for i in range(1, len(path) - 1):
         maze[path[i]] = [path[i - 1], path[i + 1]]
     maze[path[0]] = [path[1]]
@@ -77,7 +79,7 @@ def create_SAW(rows, cols, temp=0.01):
     return maze, path
 
 
-def softmax(vals, temp=0.5):
+def softmax(vals: list[int], temp: float=0.5) -> list[float]:
     """
     Softmax function with temperature `temp`.
     """
@@ -88,12 +90,12 @@ def softmax(vals, temp=0.5):
     return [v / (sum_exp_vals) for v in exp_vals]
 
 
-def weighted_choice(choices, probs):
+def weighted_choice(choices: list[Coord], probs: list[float]) -> Coord: # Could be made generic
     """
     Chooses a random element from `choices` with probabilities `probs`.
     """
     r = random.uniform(0, 1)
-    total = 0
+    total = 0.0
     for c, p in zip(choices, probs):
         total += p
         if total > r:
@@ -101,7 +103,7 @@ def weighted_choice(choices, probs):
     return choices[-1]
 
 
-def count_neighbors_in_2x2_subgraph(maze, bi, bj):
+def count_neighbors_in_2x2_subgraph(maze: Maze, bi: int, bj: int) -> int:
     """
     Count number of neighbors within 2x2 subgraph whose North-West cell
     is (bi, bj).
@@ -114,7 +116,7 @@ def count_neighbors_in_2x2_subgraph(maze, bi, bj):
     return count
 
 
-def creates_2x2_hole(maze, c0, c1):
+def creates_2x2_hole(maze: Maze, c0: Coord, c1: Coord) -> bool:
     """
     Check if the removal of the wall between neighbor1 and neighbor2 creates a
     empty space of size at least 2x2 or larger.
@@ -150,7 +152,7 @@ def creates_2x2_hole(maze, c0, c1):
     return False
 
 
-def create_maze(rows, cols, start, p_remove=0.9):
+def create_maze(rows: int, cols: int, start: Coord, p_remove: float=0.9) -> Maze:
     """
     Performs randomized depth-first search to create a maze.
     """
@@ -159,18 +161,19 @@ def create_maze(rows, cols, start, p_remove=0.9):
     # A node is a 2-tupel (i, j) representing the row and column of a cell.
     # The list of neighbors of a node is the set of nodes that can be reached
     # from the node.
-    maze = {(i, j): [] for i in range(rows) for j in range(cols)}
-    prev = {(i, j): None for i in range(rows) for j in range(cols)}
+    maze: Maze = {(i, j): [] for i in range(rows) for j in range(cols)}
+    prev: dict[Coord, Coord | None] = {(i, j): None for i in range(rows) for j in range(cols)}
     stack = [start]
     visited = set()
     offsets = [(-1, 0), (0, -1), (0, 1), (1, 0)]
 
     while len(stack) > 0:
         current = stack.pop()
-        if prev[current]:
-            if prev[current] not in current:
-                maze[current].append(prev[current])
-                maze[prev[current]].append(current)
+        prev_current = prev[current]
+        if prev_current:
+            if prev_current not in current:
+                maze[current].append(prev_current)
+                maze[prev_current].append(current)
         visited.add(current)
         i, j = current
         neighbors = [(i + di, j + dj) for di, dj in offsets]

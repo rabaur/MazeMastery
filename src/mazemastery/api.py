@@ -1,22 +1,25 @@
-import time
 import random
-from mazemastery.maze import create_maze, create_corridor, create_SAW
-from mazemastery.renderer import GUI
 import threading
+import time
+from typing import Callable
+
+from mazemastery.maze import create_corridor, create_maze, create_SAW
+from mazemastery.renderer import GUI
 from mazemastery.state import State
+from mazemastery.types import Coord
 
 
-def get_pos():
+def get_pos() -> Coord:
     state = State()
     return state.pos
 
 
-def minotaur():
+def minotaur() -> Coord:
     state = State()
     return state.minotaur_coords
 
 
-def set_pos(new_pos):
+def set_pos(new_pos: Coord) -> None:
     state = State()
     if state.dead:
         return
@@ -39,7 +42,7 @@ def set_pos(new_pos):
         time.sleep(state.renderer.delay / 1000)
 
 
-def put_blue_gem():
+def put_blue_gem() -> None:
     state = State()
     pos = state.pos
     if pos not in state.blue_gem_coords:
@@ -47,7 +50,7 @@ def put_blue_gem():
         state.blue_gem_coords.append(pos)
 
 
-def put_red_gem():
+def put_red_gem() -> None:
     state = State()
     pos = state.pos
     if pos not in state.red_gem_coords:
@@ -55,38 +58,38 @@ def put_red_gem():
         state.red_gem_coords.append(pos)
 
 
-def has_blue_gem(cell):
+def has_blue_gem(cell: Coord) -> bool:
     state = State()
     return cell in state.blue_gem_coords
 
 
-def has_red_gem(cell):
+def has_red_gem(cell: Coord) -> bool:
     state = State()
     return cell in state.red_gem_coords
 
 
-def has_minotaur():
+def has_minotaur() -> bool:
     state = State()
     return state.pos == state.minotaur_coords
 
 
-def is_neighbor(pos, neighbor):
+def is_neighbor(pos: Coord, neighbor: Coord) -> bool:
     state = State()
     return neighbor in state.maze[pos]
 
 
-def are_neighbors(pos1, pos2):
+def are_neighbors(pos1: Coord, pos2: Coord) -> bool:
     state = State()
     return pos2 in state.maze[pos1]
 
 
-def get_neighbors():
+def get_neighbors() -> list[Coord]:
     state = State()
     pos = state.pos
     return state.maze[pos]
 
 
-def run(level, solve, rows=10, cols=10, cell_size=50, delay=1000, seed=None):
+def run(level: int, solve: Callable[[], None], rows: int=10, cols: int=10, cell_size: int=50, delay: int=1000, seed: int | None=None) -> None:
     random.seed(seed)
     if level == 1:
         maze = create_corridor(cols)

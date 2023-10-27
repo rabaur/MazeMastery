@@ -1,12 +1,16 @@
-import tkinter as tk
-import random
 import math
+import os
+import random
+import tkinter as tk
+from typing import Dict, List, Tuple
+
+from PIL import Image, ImageTk  # type: ignore
+
+from mazemastery.debug_menu import DebugMenu
 from mazemastery.maze import get_maze_size
 from mazemastery.styles import Colors
-from mazemastery.debug_menu import DebugMenu
-from typing import List, Tuple, Dict
-from PIL import ImageTk, Image
-import os
+from mazemastery.types import ColorDict, Coord
+
 
 class GUI:
     def __init__(
@@ -14,9 +18,9 @@ class GUI:
         maze: Dict[Tuple[int, int], List[Tuple[int, int]]],
         minotaur_coords: Tuple[int, int],
         cell_size: int = 50,
-        grid_width: int = None,
-        gem_size: int = None,
-        minotaur_size: int = None,
+        grid_width: int | None = None,
+        gem_size: int | None = None,
+        minotaur_size: int | None = None,
         delay: int = 100,
         offset_rows: int = 2,
         offset_cols: int = 1,
@@ -48,7 +52,6 @@ class GUI:
         self.delay = delay
         self.m, self.n = get_maze_size(maze)
         self.initial_lives = initial_lives
-        self.sprites = {}
 
         # Derived sizes
         self.wall_width = self.cell_size // 10
@@ -70,8 +73,8 @@ class GUI:
 
         # Buffers tracking changes of state, such that we do not need to redraw
         # all items on every update_draw call.
-        self.blue_gem_buffer = set()
-        self.red_gem_buffer = set()
+        self.blue_gem_buffer: set[Coord] = set()
+        self.red_gem_buffer: set[Coord] = set()
         self.initial_pos = initial_pos
 
         # Canvas to draw on
@@ -89,11 +92,11 @@ class GUI:
         self.root.configure(bg=Colors.brown_highlight)
 
         # For sprites
-        self.sprites = {}
+        self.sprites: dict = {}
         self.sprite_path = os.path.join(os.path.dirname(__file__), os.path.join("sprites"))
         
 
-    def initial_draw(self):
+    def initial_draw(self) -> None:
         """
         Draws components of the maze that will remain unchanged throughout the
         game.
@@ -105,7 +108,7 @@ class GUI:
         self.draw_player(self.initial_pos, self.initial_pos)
         self.draw_initial_row_col_numbers()
 
-    def update_draw(self, old_pos, curr_pos, lives):
+    def update_draw(self, old_pos: Coord, curr_pos: Coord, lives: int) -> None:
         """
         Draws components of the maze that will change throughout the game.
         Should be called after every move. Will clear buffers.
@@ -119,8 +122,8 @@ class GUI:
         self.red_gem_buffer = set()
         self.blue_gem_buffer = set()
 
-    def draw_wall(self, start_x, start_y, end_x, end_y, wall_width, wall_color):
-        self.canvas.create_line(
+    def draw_wall(self, start_x: int, start_y: int, end_x: int, end_y: int, wall_width: int, wall_color: str) -> None:
+        self.canvas.create_line( # type: ignore
             start_x,
             start_y,
             end_x,
@@ -131,7 +134,7 @@ class GUI:
             capstyle=tk.ROUND,
         )
 
-    def draw_walls(self, wall_width, wall_color):
+    def draw_walls(self, wall_width: int, wall_color: str) -> None:
         for i in range(self.m):
             for j in range(self.n):
                 off_i = i + self.offset_rows
@@ -173,7 +176,7 @@ class GUI:
                         wall_color=wall_color,
                     )
 
-    def draw_wall_shadows(self):
+    def draw_wall_shadows(self) -> None:
         for i in range(self.m):
             for j in range(self.n):
                 off_i = i + self.offset_rows
@@ -192,7 +195,7 @@ class GUI:
                         right_x = (off_j + 1) * self.cell_size
                     else:
                         right_x = (off_j + 1) * self.cell_size + self.shadow_offset
-                    self.canvas.create_polygon(
+                    self.canvas.create_polygon( # type: ignore
                         left_x,
                         off_i * self.cell_size,
                         (off_j + 1) * self.cell_size,
@@ -222,7 +225,7 @@ class GUI:
                         bottom_y = (off_i + 1) * self.cell_size
                     else:
                         bottom_y = (off_i + 1) * self.cell_size + self.shadow_offset
-                    self.canvas.create_polygon(
+                    self.canvas.create_polygon( # type: ignore
                         off_j * self.cell_size,
                         top_y,
                         off_j * self.cell_size + self.shadow_offset,
@@ -237,11 +240,11 @@ class GUI:
                         tag="shadow",
                     )
 
-    def draw_grid(self):
+    def draw_grid(self) -> None:
 
         # Horizontal lines
         for i in range(self.offset_rows, self.m + self.offset_rows):
-            self.canvas.create_line(
+            self.canvas.create_line( # type: ignore
                 self.offset_cols + self.cell_size,
                 i * self.cell_size,
                 (self.n + self.offset_cols) * self.cell_size,
@@ -253,7 +256,7 @@ class GUI:
         
         # Vertical lines
         for j in range(self.n + self.offset_cols):
-            self.canvas.create_line(
+            self.canvas.create_line( # type: ignore
                 j * self.cell_size,
                 self.offset_rows * self.cell_size,
                 j * self.cell_size,
@@ -263,7 +266,7 @@ class GUI:
                 tag="grid",
             )
 
-    def draw_gem(self, pos, gem_size, color):
+    def draw_gem(self, pos: Coord, gem_size: int, color: ColorDict) -> None:
         """
         Draws a fancy gem at in the cell (i, j).
         """
@@ -394,7 +397,7 @@ class GUI:
             width=2,
         )
 
-    def draw_grass_blades(self, pos, num_grass=3, num_blades=4):
+    def draw_grass_blades(self, pos: Coord, num_grass: int=3, num_blades: int=4) -> None:
         """
         Draws some weeds at a random position in the cell (i, j).
         """
@@ -443,7 +446,7 @@ class GUI:
                     - y
                 )
                 shadow_offset = min(shadow_offset_x, shadow_offset_y)
-                self.canvas.create_line(
+                self.canvas.create_line( # type: ignore
                     blade_x,
                     y,
                     # Make shadow offset proportional to blade height
@@ -454,7 +457,7 @@ class GUI:
                     tag="grass_blade",
                 )
 
-                self.canvas.create_rectangle(
+                self.canvas.create_rectangle( # type: ignore
                     blade_x,
                     y,
                     blade_x + blade_width,
@@ -465,7 +468,7 @@ class GUI:
                 )
 
                 # Small highlight
-                self.canvas.create_rectangle(
+                self.canvas.create_rectangle( # type: ignore
                     blade_x,
                     y - blade_height + blade_width,
                     blade_x + blade_width,
@@ -475,7 +478,7 @@ class GUI:
                     tag="grass_blade",
                 )
 
-    def draw_grass(self):
+    def draw_grass(self) -> None:
         """
         Instead of rendering empty cells with four walls in case a cell is not
         connnected to the maze, we render it as a path of grass.
@@ -486,7 +489,7 @@ class GUI:
                     continue
                 off_i = i + self.offset_rows
                 off_j = j + self.offset_cols
-                self.canvas.create_rectangle(
+                self.canvas.create_rectangle( # type: ignore
                     off_j * self.cell_size,
                     off_i * self.cell_size,
                     (off_j + 1) * self.cell_size,
@@ -500,7 +503,7 @@ class GUI:
                 if self.maze[(i, j)] == []:
                     self.draw_grass_blades((i, j))
 
-    def draw_maze(self):
+    def draw_maze(self) -> None:
         """
         Render a maze using tkinter.
         """
@@ -536,7 +539,7 @@ class GUI:
         j += self.offset_cols
 
         # Shadow
-        self.canvas.create_oval(
+        self.canvas.create_oval( # type: ignore
             j * self.cell_size + self.cell_size // 3,
             i * self.cell_size + 2 * self.cell_size // 3,
             j * self.cell_size +  4 * self.cell_size // 5,
@@ -558,7 +561,7 @@ class GUI:
 
         self.draw_sprite(file_name, self.cell_size, i, j, "player", use_offset=False, dy=-self.cell_size // 4)
 
-    def draw_pebble(self, pos):
+    def draw_pebble(self, pos: Coord) -> None:
         i, j = pos
         x = random.randint(j * self.cell_size, (j + 1) * self.cell_size)
         y = random.randint(i * self.cell_size, (i + 1) * self.cell_size)
@@ -569,7 +572,7 @@ class GUI:
         size = random.randint(min_size, max_size)
 
         # Base
-        self.canvas.create_rectangle(
+        self.canvas.create_rectangle( # type: ignore
             x,
             y,
             x + size,
@@ -580,7 +583,7 @@ class GUI:
         )
 
         # Highlight
-        self.canvas.create_rectangle(
+        self.canvas.create_rectangle( # type: ignore
             x + 2,
             y + 2,
             x + size // 3 * 2,
@@ -590,7 +593,7 @@ class GUI:
             tag="cell",
         )
 
-    def draw_cells(self, cell_color, pebble_count=10):
+    def draw_cells(self, cell_color: str, pebble_count: int=10) -> None:
         """
         Render the cells using tkinter.
         """
@@ -598,7 +601,7 @@ class GUI:
             for j in range(self.n):
                 off_i = i + self.offset_rows
                 off_j = j + self.offset_cols
-                self.canvas.create_rectangle(
+                self.canvas.create_rectangle( # type: ignore
                     off_j * self.cell_size,
                     off_i * self.cell_size,
                     (off_j + 1) * self.cell_size,
@@ -611,7 +614,7 @@ class GUI:
                 for _ in range(pebble_count):
                     self.draw_pebble((off_i, off_j))
 
-    def draw_gems(self):
+    def draw_gems(self) -> None:
         """
         Render gems using tkinter.
         """
@@ -621,7 +624,7 @@ class GUI:
         for i, j in self.red_gem_buffer:
             self.draw_gem((i, j), self.cell_size // 2, Colors.reds)
 
-    def draw_minotaur(self):
+    def draw_minotaur(self) -> None:
         """
         Render minotaur using tkinter.
         """
@@ -642,8 +645,8 @@ class GUI:
 
         self.draw_sprite("minotaur.png", self.cell_size, i, j, "minotaur", use_offset=False, dy=-self.cell_size // 4)
 
-    def draw_path_segment(self, source, target):
-        self.canvas.create_line(
+    def draw_path_segment(self, source: Coord, target: Coord) -> None:
+        self.canvas.create_line( # type: ignore
             (source[1] + self.offset_cols) * self.cell_size + self.cell_size // 2,
             (source[0] + self.offset_rows) * self.cell_size + self.cell_size // 2,
             (target[1] + self.offset_cols) * self.cell_size + self.cell_size // 2,
@@ -653,11 +656,11 @@ class GUI:
             tag="path",
         )
 
-    def draw_initial_row_col_numbers(self, font_size=None):
+    def draw_initial_row_col_numbers(self, font_size: int | None=None) -> None:
         if font_size is None:
             font_size = self.cell_size // 4
         for i in range(self.m):
-            self.canvas.create_text(
+            self.canvas.create_text( # type: ignore
                 (self.offset_cols - 0.5) * self.cell_size,
                 (i + self.offset_rows + 0.5) * self.cell_size,
                 text=str(i),
@@ -667,7 +670,7 @@ class GUI:
                 tag=f"row_number_{i}",
             )
         for j in range(self.n):
-            self.canvas.create_text(
+            self.canvas.create_text( # type: ignore
                 (j + self.offset_cols + 0.5) * self.cell_size,
                 (self.offset_rows - 2 / 3) * self.cell_size,
                 text=str(j),
@@ -677,14 +680,14 @@ class GUI:
                 tag=f"col_number_{j}",
             )
 
-    def draw_row_col_numbers(self, old_pos, pos, font_size=None):
+    def draw_row_col_numbers(self, old_pos: Coord, pos: Coord, font_size: int | None=None) -> None:
         if font_size is None:
             font_size = self.cell_size // 4
         self.canvas.delete("number")  # delete old numbers
         if old_pos[0] != pos[0]:  # row number changed, update required
             self.canvas.delete(f"row_number_{old_pos[0]}")
             self.canvas.delete(f"row_number_{pos[0]}")
-            self.canvas.create_text(
+            self.canvas.create_text( # type: ignore
                 (self.offset_cols - 0.5) * self.cell_size,
                 (old_pos[0] + self.offset_rows + 0.5) * self.cell_size,
                 text=str(old_pos[0]),
@@ -693,7 +696,7 @@ class GUI:
                 anchor="e",
                 tag=f"row_number_{old_pos[0]}",
             )
-            self.canvas.create_text(
+            self.canvas.create_text( # type: ignore
                 (self.offset_cols - 0.5) * self.cell_size,
                 (pos[0] + self.offset_rows + 0.5) * self.cell_size,
                 text=str(pos[0]),
@@ -705,7 +708,7 @@ class GUI:
         if old_pos[1] != pos[1]:  # col number changed, update required
             self.canvas.delete(f"col_number_{old_pos[1]}")
             self.canvas.delete(f"col_number_{pos[1]}")
-            self.canvas.create_text(
+            self.canvas.create_text( # type: ignore
                 (old_pos[1] + self.offset_cols + 0.5) * self.cell_size,
                 (self.offset_rows - 2 / 3) * self.cell_size,
                 text=str(old_pos[1]),
@@ -714,7 +717,7 @@ class GUI:
                 anchor="n",
                 tag=f"col_number_{old_pos[1]}",
             )
-            self.canvas.create_text(
+            self.canvas.create_text( # type: ignore
                 (pos[1] + self.offset_cols + 0.5) * self.cell_size,
                 (self.offset_rows - 2 / 3) * self.cell_size,
                 text=str(pos[1]),
@@ -724,7 +727,7 @@ class GUI:
                 tag=f"col_number_{pos[1]}",
             )
     
-    def draw_hearts(self, num=5, filled=3, border_width=None, heart_size=None):
+    def draw_hearts(self, num: int=5, filled: int=3, border_width: int | None=None, heart_size: int | None=None) -> None:
         """
         Draws 'num' hearts, 'filled' of which are filled in. Hearts are placed
         on the first row of the canvas and grow from right to left.
@@ -764,13 +767,13 @@ class GUI:
 
     def draw_heart(
         self, 
-        x, 
-        y, 
-        size, 
-        highlight=False, 
-        highlight_color="white", 
-        color="red"
-    ):
+        x: int, 
+        y: int, 
+        size: int, 
+        highlight: bool=False, 
+        highlight_color: str="white", 
+        color: str="red"
+    ) -> None:
         """
         Draws a heart (vertical) whose tip is at (x, y). Size is the side
         length of the square that forms the bottom of the heart.
@@ -778,7 +781,7 @@ class GUI:
 
         # Tip
         cat = size / math.sqrt(2)
-        self.canvas.create_polygon(
+        self.canvas.create_polygon( # type: ignore
             x, y,
             x - cat, y - cat,
             x, y - 2 * cat,
@@ -792,7 +795,7 @@ class GUI:
         r = size / 2
         cx = x + cat / 2
         cy = y - 3 / 2 * cat
-        self.canvas.create_oval(
+        self.canvas.create_oval( # type: ignore
             cx - r, cy - r,
             cx + r, cy + r,
             fill=color,
@@ -803,7 +806,7 @@ class GUI:
         # Left part
         cx = x - cat / 2
         cy = y - 3 / 2 * cat
-        self.canvas.create_oval(
+        self.canvas.create_oval( # type: ignore
             cx - r, cy - r,
             cx + r, cy + r,
             fill=color,
@@ -815,7 +818,7 @@ class GUI:
         if not highlight:
             return
         
-        self.canvas.create_oval(
+        self.canvas.create_oval( # type: ignore
             cx - r / 2, cy - r / 2,
             cx + r / 2, cy + r / 2,
             fill=highlight_color,
@@ -823,7 +826,7 @@ class GUI:
             outline=""
         )
     
-    def draw_popup(self, text, color="black"):
+    def draw_popup(self, text: str, color: str="black") -> None:
         self.end_screen = tk.Label(
             text=text,
             font="Arial 100 bold",
@@ -840,13 +843,13 @@ class GUI:
             column=0,
             rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
     
-    def draw_cloud(self, pos, cloud_color=Colors.cloud):
+    def draw_cloud(self, pos: Coord, cloud_color: str=Colors.cloud) -> None:
         """
         Draws cloud surround the whole maze except a window around the player.
         """
         self.canvas.delete("cloud")
         # Left side
-        self.canvas.create_rectangle(
+        self.canvas.create_rectangle( # type: ignore
             self.cell_size * self.offset_cols,
             self.cell_size,
             self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
@@ -857,7 +860,7 @@ class GUI:
         )
 
         # Right side
-        self.canvas.create_rectangle(
+        self.canvas.create_rectangle( # type: ignore
             self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
             self.cell_size,
             self.cell_size * self.offset_cols + self.cell_size * self.n,
@@ -868,7 +871,7 @@ class GUI:
         )
 
         # Top
-        self.canvas.create_rectangle(
+        self.canvas.create_rectangle( # type: ignore
             self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
             self.cell_size,
             self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
@@ -879,7 +882,7 @@ class GUI:
         )
 
         # Bottom
-        self.canvas.create_rectangle(
+        self.canvas.create_rectangle( # type: ignore
             self.cell_size * self.offset_cols + self.cell_size * max(0, pos[1] - 1),
             self.cell_size * self.offset_rows + self.cell_size * min(self.m, pos[0] + 2),
             self.cell_size * self.offset_cols + self.cell_size * min(self.n, pos[1] + 2),
@@ -951,7 +954,7 @@ class GUI:
         self.draw_sprite("cloud_nw_inner_corner_w.png", self.cell_size, i - 1, j - 2, "cloud")
         self.draw_sprite("cloud_nw_inner_corner_n.png", self.cell_size, i - 2, j - 1, "cloud")
 
-    def draw_sprite(self, name, size, i, j, tag, unique_id=None, use_offset=True, dx= 0, dy=0):
+    def draw_sprite(self, name: str, size: int, i: int, j: int, tag: str, unique_id: str | None=None, use_offset: bool=True, dx: int=0, dy: int=0) -> None:
         """
         Draws a sprite at position pos.
         """
@@ -971,8 +974,8 @@ class GUI:
             tag=tag
         )
 
-    def push_blue_gem_buffer(self, pos):
+    def push_blue_gem_buffer(self, pos: Coord) -> None:
         self.blue_gem_buffer.add(pos)
 
-    def push_red_gem_buffer(self, pos):
+    def push_red_gem_buffer(self, pos: Coord) -> None:
         self.red_gem_buffer.add(pos)

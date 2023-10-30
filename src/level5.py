@@ -1,6 +1,7 @@
 from mazemastery.api import *
 
-def solve():
+
+def solve() -> None:
     stack = [get_pos()]
     while not has_minotaur():
         put_blue_gem()

@@ -1,11 +1,14 @@
 import tkinter as tk
-from mazemastery.styles import Styles
+from typing import TYPE_CHECKING
+
 import mazemastery.api as api
 from mazemastery.state import State
+from mazemastery.styles import Styles
+from mazemastery.types import Renderer
 
 
 class DebugMenu:
-    def __init__(self, renderer):
+    def __init__(self, renderer: Renderer):
         # These buttons are used to modify the maze state in debug mode
         self.api_buttons = {
             "put_red_gem": tk.Button(
@@ -89,7 +92,7 @@ class DebugMenu:
 
         self.renderer = renderer
 
-    def update_menu(self):
+    def update_menu(self) -> None:
         """
         Beware - this can only be called after initialization of the renderer
         due to an ugly circular dependency between the renderer and the api.
@@ -119,17 +122,17 @@ class DebugMenu:
             for key, button in {**self.api_buttons, **self.nav_buttons}.items():
                 button.configure(state=tk.DISABLED, relief=tk.FLAT)
 
-    def handle_put_red_gem_button(self):
+    def handle_put_red_gem_button(self) -> None:
         api.put_red_gem()
         self.renderer.draw_gems()
         self.update_menu()
 
-    def handle_put_blue_gem_button(self):
+    def handle_put_blue_gem_button(self) -> None:
         api.put_blue_gem()
         self.renderer.draw_gems()
         self.update_menu()
 
-    def handle_debug_button(self):
+    def handle_debug_button(self) -> None:
         self.renderer.debug = not self.renderer.debug
         state = State()
         if self.renderer.debug:
@@ -139,7 +142,7 @@ class DebugMenu:
             self.renderer.canvas.delete("cloud")
         self.update_menu()
 
-    def handle_nav_button(self, dir):
+    def handle_nav_button(self, dir: tuple[int, int]) -> None:
         """
         We cannot use the api call 'set_pos' here because if otherwise the current
         thread will run into the while loop that only resolves once we leave

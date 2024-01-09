@@ -21,20 +21,65 @@ def get_maze_size(maze: Maze) -> tuple[int, int]:
     return m, n
 
 
-def create_corridor(length: int) -> Maze:
+def create_corridor(length: int, dir: str = "horizontal") -> Maze:
     """
-    Generates a maze of length `length` that is a single path.
+    Generates a maze of length `length` that is a single horizontal/vertical
+    path.
     """
     maze: Maze = {}
-    for j in range(1, length - 1):
-        maze[(0, j)] = [(0, j + 1), (0, j - 1)]
-    maze[(0, 0)] = [(0, 1)]
-    maze[(0, length - 1)] = [(0, length - 2)]
+    if dir == "horizontal":
+        for j in range(1, length - 1):
+            maze[(0, j)] = [(0, j + 1), (0, j - 1)]
+        maze[(0, 0)] = [(0, 1)]
+        maze[(0, length - 1)] = [(0, length - 2)]
+    elif dir == "vertical":
+        for i in range(1, length - 1):
+            maze[(i, 0)] = [(i + 1, 0), (i - 1, 0)]
+        maze[(0, 0)] = [(1, 0)]
+        maze[(length - 1, 0)] = [(length - 2, 0)]
+    else:
+        raise ValueError(f"Invalid direction: {dir}")
     maze = randomize_neighbor_order(maze)
     return maze
 
 
-def create_SAW(rows: int, cols: int, temp: float=0.01) -> tuple[Maze, list[Coord]]:
+def create_zigzag(length) -> tuple[Maze, Coord]:
+    maze: Maze = {}
+
+    # First iteration
+    i, j = 0, 0
+    maze[(i, j)] = [(i, j + 1)]
+    j += 1
+
+    # Middle iteration
+    for index in range(1, length - 1):
+        if index % 2 == 1:
+            # Odd index, that means we are at a "┐" corner
+            maze[(i, j)] = [(i, j - 1), (i + 1, j)]
+            i += 1
+        else:
+            # Even index, that means we are a "└" corner
+            maze[(i, j)] = [(i - 1, j), (i, j + 1)]
+            j += 1
+
+    # Final iteration - if the length is even, we end "-", else we end "|"
+    if length % 2 == 0:
+        maze[(i, j)] = [(i, j - 1)]
+    else:
+        maze[(i, j)] = [(i - 1, j)]
+
+    # Fill in the remaining cells.
+    max_row = max([ii for ii, _ in maze]) + 1
+    max_col = max([jj for _, jj in maze]) + 1
+    for ii in range(max_row):
+        for jj in range(max_col):
+            if not (ii, jj) in maze:
+                maze[(ii, jj)] = []
+
+    return maze, (i, j)
+
+
+def create_SAW(rows: int, cols: int, temp: float = 0.01) -> tuple[Maze, list[Coord]]:
     """
     Generates a maze of size `rows` x `cols` that contains a self-avoiding walk.
     """
@@ -79,7 +124,7 @@ def create_SAW(rows: int, cols: int, temp: float=0.01) -> tuple[Maze, list[Coord
     return maze, path
 
 
-def softmax(vals: list[int], temp: float=0.5) -> list[float]:
+def softmax(vals: list[int], temp: float = 0.5) -> list[float]:
     """
     Softmax function with temperature `temp`.
     """
@@ -153,7 +198,7 @@ def creates_2x2_hole(maze: Maze, c0: Coord, c1: Coord) -> bool:
     return False
 
 
-def create_maze(rows: int, cols: int, start: Coord, p_remove: float=0.9) -> Maze:
+def create_maze(rows: int, cols: int, start: Coord, p_remove: float = 0.9) -> Maze:
     """
     Performs randomized depth-first search to create a maze.
     """
@@ -209,21 +254,26 @@ def create_maze(rows: int, cols: int, start: Coord, p_remove: float=0.9) -> Maze
 def maze_factory(level: int, rows: int, cols: int) -> tuple[Maze, Coord]:
     match level:
         case 1:
-            maze = create_corridor(cols)
+            maze = create_corridor(cols, "horizontal")
             minotaur_coords = (0, cols - 1)
         case 2:
-            maze = create_corridor(cols)
+            maze = create_corridor(cols, "horizontal")
             minotaur_coords = (0, random.choice(range(1, cols - 1)))
         case 3:
+            maze = create_corridor(rows, "vertical")
+            minotaur_coords = (0, random.choice(range(1, rows - 1)))
+        case 4:
+            maze, minotaur_coords = create_zigzag(cols)
+        case 5:
             maze, path = create_SAW(rows, cols)
             minotaur_coords = path[-1]
-        case 4:
+        case 6:
             maze = create_maze(rows, cols, (0, 0), 0.0)
             minotaur_coords = (rows - 4, cols - 4)
-        case 5:
+        case 7:
             maze = create_maze(rows, cols, (0, 0), 0.2)
             minotaur_coords = (rows - 4, cols - 4)
-        case 6:
+        case 8:
             maze = create_maze(rows, cols, (0, 0), 0.2)
             minotaur_coords = (rows - 4, cols - 4)
         case _:

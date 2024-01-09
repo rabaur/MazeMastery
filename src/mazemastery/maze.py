@@ -125,8 +125,8 @@ def creates_2x2_hole(maze: Maze, c0: Coord, c1: Coord) -> bool:
     """
     c0, c1 = sorted([c0, c1])
 
+    # Rows agree, so we would remove a vertical wall.
     if c0[0] == c1[0]:
-        # Rows agree, so we would remove a vertical wall.
 
         # Check if removal of this wall would create a hole above and below.
         for i in range(max(0, c0[0] - 1), c0[0] + 1):
@@ -137,8 +137,9 @@ def creates_2x2_hole(maze: Maze, c0: Coord, c1: Coord) -> bool:
             if count + 1 == 4:
                 # In this case, the removal of the wall would create a hole.
                 return True
+
+    # Columns agree, so we would remove a horizontal wall.
     else:
-        # Columns agree, so we would remove a horizontal wall.
 
         # Check if removal of this wall would create a hole to the left and right.
         for j in range(max(0, c0[1] - 1), c1[1] + 1):

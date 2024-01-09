@@ -12,7 +12,7 @@ from mazemastery.styles import Colors
 from mazemastery.types import ColorDict, Coord
 
 
-class GUI:
+class Renderer:
     def __init__(
         self,
         maze: Dict[Tuple[int, int], List[Tuple[int, int]]],
@@ -94,7 +94,6 @@ class GUI:
         # For sprites
         self.sprites: dict = {}
         self.sprite_path = os.path.join(os.path.dirname(__file__), os.path.join("sprites"))
-        
 
     def initial_draw(self) -> None:
         """
@@ -542,8 +541,8 @@ class GUI:
         self.canvas.create_oval( # type: ignore
             j * self.cell_size + self.cell_size // 3,
             i * self.cell_size + 2 * self.cell_size // 3,
-            j * self.cell_size +  4 * self.cell_size // 5,
-            i * self.cell_size +  4 * self.cell_size // 5,
+            j * self.cell_size + 4 * self.cell_size // 5,
+            i * self.cell_size + 4 * self.cell_size // 5,
             fill=Colors.brown_border,
             outline="",
             tag="player",
@@ -593,7 +592,7 @@ class GUI:
             tag="cell",
         )
 
-    def draw_cells(self, cell_color: str, pebble_count: int=10) -> None:
+    def draw_cells(self, cell_color: str, pebble_count: int = 10) -> None:
         """
         Render the cells using tkinter.
         """
@@ -637,8 +636,8 @@ class GUI:
         self.canvas.create_oval(
             j * self.cell_size + self.cell_size // 3,
             i * self.cell_size + 2 * self.cell_size // 3,
-            j * self.cell_size +  4 * self.cell_size // 5,
-            i * self.cell_size +  4 * self.cell_size // 5,
+            j * self.cell_size + 4 * self.cell_size // 5,
+            i * self.cell_size + 4 * self.cell_size // 5,
             fill=Colors.brown_border,
             outline="",
         )
@@ -656,7 +655,7 @@ class GUI:
             tag="path",
         )
 
-    def draw_initial_row_col_numbers(self, font_size: int | None=None) -> None:
+    def draw_initial_row_col_numbers(self, font_size: int | None = None) -> None:
         if font_size is None:
             font_size = self.cell_size // 4
         for i in range(self.m):
@@ -757,7 +756,7 @@ class GUI:
 
             # Draw an inner heart - if we are larger than filled, we draw a greyed out heart.
             self.draw_heart(
-                x=(self.offset_cols + (self.n - 1 -i)) * self.cell_size + self.cell_size // 2,
+                x=(self.offset_cols + (self.n - 1 - i)) * self.cell_size + self.cell_size // 2,
                 y=self.cell_size // 2 - border_width,
                 size=heart_size- border_width,
                 color=Colors.reds[1] if i < filled else Colors.reds[-1],
@@ -766,13 +765,13 @@ class GUI:
             )
 
     def draw_heart(
-        self, 
-        x: int, 
-        y: int, 
-        size: int, 
-        highlight: bool=False, 
-        highlight_color: str="white", 
-        color: str="red"
+        self,
+        x: int,
+        y: int,
+        size: int,
+        highlight: bool = False,
+        highlight_color: str = "white",
+        color: str = "red"
     ) -> None:
         """
         Draws a heart (vertical) whose tip is at (x, y). Size is the side
@@ -800,7 +799,7 @@ class GUI:
             cx + r, cy + r,
             fill=color,
             tag="heart",
-            outline=""            
+            outline=""
         )
 
         # Left part
@@ -826,7 +825,7 @@ class GUI:
             outline=""
         )
     
-    def draw_popup(self, text: str, color: str="black") -> None:
+    def draw_popup(self, text: str, color: str = "black") -> None:
         self.end_screen = tk.Label(
             text=text,
             font="Arial 100 bold",
@@ -843,7 +842,7 @@ class GUI:
             column=0,
             rowspan=len(self.debug_menu.api_buttons) + len(self.debug_menu.state_labels) + self.offset_rows + 2 + 2)
     
-    def draw_cloud(self, pos: Coord, cloud_color: str=Colors.cloud) -> None:
+    def draw_cloud(self, pos: Coord, cloud_color: str = Colors.cloud) -> None:
         """
         Draws cloud surround the whole maze except a window around the player.
         """
@@ -954,9 +953,20 @@ class GUI:
         self.draw_sprite("cloud_nw_inner_corner_w.png", self.cell_size, i - 1, j - 2, "cloud")
         self.draw_sprite("cloud_nw_inner_corner_n.png", self.cell_size, i - 2, j - 1, "cloud")
 
-    def draw_sprite(self, name: str, size: int, i: int, j: int, tag: str, unique_id: str | None=None, use_offset: bool=True, dx: int=0, dy: int=0) -> None:
+    def draw_sprite(
+            self,
+            name: str,
+            size: int,
+            i: int,
+            j: int,
+            tag: str,
+            unique_id: str | None = None,
+            use_offset: bool = True,
+            dx: int = 0,
+            dy: int = 0
+        ) -> None:
         """
-        Draws a sprite at position pos.
+        Draws a sprite at position (i, j).
         """
         image = Image.open(os.path.join(self.sprite_path, name))
         image = image.resize((size, size), Image.NEAREST)

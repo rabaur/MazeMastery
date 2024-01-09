@@ -206,6 +206,31 @@ def create_maze(rows: int, cols: int, start: Coord, p_remove: float=0.9) -> Maze
     return maze
 
 
+def maze_factory(level: int, rows: int, cols: int) -> tuple[Maze, Coord]:
+    match level:
+        case 1:
+            maze = create_corridor(cols)
+            minotaur_coords = (0, cols - 1)
+        case 2:
+            maze = create_corridor(cols)
+            minotaur_coords = (0, random.choice(range(1, cols - 1)))
+        case 3:
+            maze, path = create_SAW(rows, cols)
+            minotaur_coords = path[-1]
+        case 4:
+            maze = create_maze(rows, cols, (0, 0), 0.0)
+            minotaur_coords = (rows - 4, cols - 4)
+        case 5:
+            maze = create_maze(rows, cols, (0, 0), 0.2)
+            minotaur_coords = (rows - 4, cols - 4)
+        case 6:
+            maze = create_maze(rows, cols, (0, 0), 0.2)
+            minotaur_coords = (rows - 4, cols - 4)
+        case _:
+            raise ValueError(f"Invalid level: {level}")
+    return maze, minotaur_coords
+
+
 if __name__ == "__main__":
     maze = create_maze(10, 10, (0, 0))
     print(maze)

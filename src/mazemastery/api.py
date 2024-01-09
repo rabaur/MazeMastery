@@ -3,7 +3,7 @@ import threading
 import time
 from typing import Callable
 
-from mazemastery.maze import create_corridor, create_maze, create_SAW
+from mazemastery.maze import maze_factory
 from mazemastery.renderer import Renderer
 from mazemastery.state import State
 from mazemastery.types import Coord
@@ -32,6 +32,10 @@ def set_pos(new_pos: Coord) -> None:
             state.lives -= 1
         new_pos = state.pos
     old_pos = state.pos
+
+    # The end screen on level 1 cannot be checked with a seperate solution
+    # thread, since we don't strictly need to terminate the solution for it
+    # to be valid (since the minotaur is at the end of the corridor).
     if state.level == 1 and new_pos == state.minotaur_coords:
         state.renderer.draw_popup("You found the minotaur!\nContinue to the next level ...")
     state.pos = new_pos
@@ -101,24 +105,7 @@ def run(
     seed: int | None = None,
 ) -> None:
     random.seed(seed)
-    if level == 1:
-        maze = create_corridor(cols)
-        minotaur_coords = (0, cols - 1)
-    elif level == 2:
-        maze = create_corridor(cols)
-        minotaur_coords = (0, random.choice(range(1, cols - 1)))
-    elif level == 3:
-        maze, path = create_SAW(rows, cols)
-        minotaur_coords = path[-1]
-    elif level == 4:
-        maze = create_maze(rows, cols, (0, 0), 0.0)
-        minotaur_coords = (rows - 4, cols - 4)
-    elif level == 5:
-        maze = create_maze(rows, cols, (0, 0), 0.2)
-        minotaur_coords = (rows - 4, cols - 4)
-    elif level == 6:
-        maze = create_maze(rows, cols, (0, 0), 0.2)
-        minotaur_coords = (rows - 4, cols - 4)
+    maze, minotaur_coords = maze_factory(level, rows, cols)
     renderer = Renderer(
         maze,
         minotaur_coords,
@@ -135,6 +122,9 @@ def run(
     solution_thread = threading.Thread(target=solve, name="solution_thread")
     solution_thread.start()
 
+    # This function runs on a seperate thread and repeatedly checks if the
+    # the solution thread is dead. If so, we check if the player has found the
+    # minotaur.
     def check_if_found_minotaur():
         while True:
             time.sleep(0.1)
@@ -144,7 +134,9 @@ def run(
             if state.pos == state.minotaur_coords:
                 renderer.draw_popup("You found the minotaur!\nContinue to the next level ...")
             break
-    check_solution_thread = threading.Thread(target=check_if_found_minotaur, name="check_if_found_minotaur_thread")
+    check_solution_thread = threading.Thread(
+        target=check_if_found_minotaur,
+        name="check_if_found_minotaur_thread"
+    )
     check_solution_thread.start()
     renderer.root.mainloop()
-

@@ -261,7 +261,7 @@ def maze_factory(level: int, rows: int, cols: int) -> tuple[Maze, Coord]:
             minotaur_coords = (0, random.choice(range(1, cols - 1)))
         case 3:
             maze = create_corridor(rows, "vertical")
-            minotaur_coords = (0, random.choice(range(1, rows - 1)))
+            minotaur_coords = (random.choice(range(1, rows - 1)), 0)
         case 4:
             maze, minotaur_coords = create_zigzag(cols)
         case 5:

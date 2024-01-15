@@ -10,4 +10,4 @@ from solutions import (
     level8,
 )
 
-run(6, level6, delay=1000, cell_size=100, rows=7, cols=8, seed=2)
+run(6, level6, delay=1000, cell_size=100, rows=2, cols=8)

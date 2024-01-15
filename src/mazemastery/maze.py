@@ -269,13 +269,26 @@ def maze_factory(level: int, rows: int, cols: int) -> tuple[Maze, Coord]:
             minotaur_coords = path[-1]
         case 6:
             maze = create_maze(rows, cols, (0, 0), 0.0)
-            minotaur_coords = (rows - 4, cols - 4)
+
+            # Choose coordinates in the bottom-right quadrant
+            minotaur_coords = (
+                random.choice(range(rows // 2, rows)),
+                random.choice(range(cols // 2, cols))
+            )
         case 7:
             maze = create_maze(rows, cols, (0, 0), 0.2)
-            minotaur_coords = (rows - 4, cols - 4)
+            # Choose coordinates in the bottom-right quadrant
+            minotaur_coords = (
+                random.choice(range(rows // 2, rows)),
+                random.choice(range(cols // 2, cols))
+            )
         case 8:
             maze = create_maze(rows, cols, (0, 0), 0.2)
-            minotaur_coords = (rows - 4, cols - 4)
+            # Choose coordinates in the bottom-right quadrant
+            minotaur_coords = (
+                random.choice(range(rows // 2, rows)),
+                random.choice(range(cols // 2, cols))
+            )
         case _:
             raise ValueError(f"Invalid level: {level}")
     return maze, minotaur_coords

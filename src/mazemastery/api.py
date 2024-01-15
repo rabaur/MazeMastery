@@ -2,6 +2,7 @@ import random
 import threading
 import time
 from typing import Callable
+import multiprocessing
 
 from mazemastery.maze import maze_factory
 from mazemastery.renderer import Renderer
